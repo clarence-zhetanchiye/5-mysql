@@ -1,0 +1,8 @@
+-- 修改数据库（这里的修改数据库是指修改数据库的字符集、校验规则(也称排序规则)，并不能修改数据库名称！！！可以Navicat右键修改库名）
+    ALTER DATABASE ['数据库名'] CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin';
+
+    说明：
+    1、其中'数据库名'可以不写，若不写则是默认修改当前数据库（即执行了  USE '数据库名';  这条sql语句后）
+    2、CHARACTER SET 'utf8mb4' 和 COLLATE 'utf8mb4_bin' 分别可以不写，不写则是使用当前版本MySQL默认的值。
+
+（完）

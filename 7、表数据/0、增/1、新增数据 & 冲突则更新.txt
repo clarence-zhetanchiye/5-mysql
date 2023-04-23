@@ -1,0 +1,49 @@
+新增数据：
+    INSERT [HIGH_PRIORITY | LOW_PRIORITY | DELAYED] [IGNORE] INTO tab_name [(column1, column2, ...)]
+    VALUES (v1,v2,...),(v11,v22,...),... [ON DUPLICATE KEY UPDATE column1=v1,column2=v2,...];
+
+    其中：
+    1、HIGH_PRIORITY //多用户访问数据表时，指定提高当前sql的执行优先级
+    2、LOW_PRIORITY  //多用户访问数据表时，指定降低当前sql的执行优先级
+    3、DELAYED       //多用户访问数据表时，指定当前sql的执行优先级。即MySQL先缓存待新增数据，等到没有用户访问数据表时再新增到数据表中。
+
+    4、IGNORE                    //执行当前sql若出错时，不报错而是只报警告。
+    5、tab_name                  //数据新增到的目的表名
+    6、(column1, column2, ...)   //若不写，则需显示地向表的每个列新增数据，即此时(v1,v2,...)中需要写上每个列的值，包括自增的id列；
+                                   若写，则可以不写自增的id列及其他列，这样(v1,v2,...)中也可以不写id的值和其他列的值，MySQL会自
+                                   动填充自增id的值，其他列则填充null或建表时设定的默认值。
+    7、(v1,v2,...)               //v可以是DEFAULT（前提是建表时相应的字段已申明默认值）、NULL、表达式、常量、变量。v的顺序必须
+                                  与(column1, column2, ...)中column的顺序一致。
+    8、ON DUPLICATE KEY UPDATE   //若写，则当前新增的数据中，某些列的值和数据表中 UNIQUE KEY 、PRIMARY KEY 的列中已有的值重复时，
+                                   则会执行当前sql中UPDATE后面部分。
+
+
+
+TODO:实际使用时，主要有如下几种方式：（假设现在是向一张包含有 id、user、age、hobby、at 列的表中添加数据，其中id是自增列）
+
+实际使用方式一、
+    插入完整的一条数据，包括自增id，示例如下：
+    INSERT INTO table_name VALUES(1,'jack',12,null,'2022-12-12 12:12:12'); //对应表table_name中的id user age hobby at列。
+
+实际使用方式二、
+    插入部分的一条数据，即只插入表的一行中的部分字段的值，示例如下：
+    INSERT INTO table_name (user, age, at) VALUES('tom', 11, '2022-12-12 22:22:22'); //id列会自增，hobby会是null
+
+实际使用方式三、
+    一条sql中批量插入数据：
+    INSERT INTO table_name (user, age, hobby, at) VALUES('mary', 11, 'soccer', '2020-12-12 10:10:10'),
+    ('mary2', 11, 'soccer', '2020-12-12 10:10:10'),('mary3', 11, 'soccer', '2020-12-12 10:10:10'); //注意多条数据间是逗号。
+
+实际使用方式四、
+    新增的数据和表中数据的 UNIQUE KEY 或 PRIMARY KEY 列冲突时，变为修改表中被冲突的数据
+    INSERT INTO table_name (id, user, age, hobby, at) VALUES(1, 'new', 1, null, NOW()) ON DUPLICATE
+    KEY UPDATE user='new', age=1, hobby=null, at=NOW(); //若表中已有一条id为1的数据，则表中第一条数据会被更新为UPDATE后面的值。
+
+
+附：
+    也可以使用这种新增数据的语法结构（一般不这样用）：
+    INSERT  [HIGH_PRIORITY | LOW_PRIORITY | DELAYED] [IGNORE] INTO tab_name
+    SET column1=v1, column2=DEFAULT [ON DUPLICATE KEY UPDATE column1=v1, column2=DEFAULT
+
+
+（完）

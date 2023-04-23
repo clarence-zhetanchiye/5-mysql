@@ -1,0 +1,44 @@
+MySQL的CASE语句的语法为：
+CASE variable WHEN value THEN action; //意思是当variable=value，则执行action。
+WHEN value THEN action;             //这一行是可选的
+ELSE action;                        //这一行是可选的
+END CASE;
+（其中的variable是条件，action是执行逻辑如提供返回值）
+注意：CASE语句无法直接当做sql语句用！！！ 但CASE语句、sql语句可以有机地结合使用，下面的举例中就有这种情形。
+
+1、在创建的"存储过程"内使用CASE语句：
+1.1、
+    在Navicat终端执行如下MySQL代码，在MySQL中创建一个"存储过程"：
+    CREATE PROCEDURE pro_ck(in x int)
+    BEGIN
+    CASE x WHEN 10 THEN SELECT 'ten';
+    WHEN 20 THEN SELECT 'twenty';
+    ELSE SELECT 'other';
+    END CASE;
+    END;
+
+    当调用该存储过程并传进入参30，即执行 CALL pro_ck(30) ， 则Navicat终端显示 'other'
+
+1.2、                      operator表
+    +----+-------+------+-------+
+    | id | money | rate | note  |
+    +----+-------+------+-------+
+    |  1 |   100 |  0.5 | hi    |
+    |  2 |   200 |    1 | hello |
+    |  3 |   300 |  1.5 | hey   |
+    +----+-------+------+-------+
+
+    在Navicat终端执行如下MySQL代码，在MySQL中创建一个"存储过程"：
+    CREATE PROCEDURE pro_ck(in x int)
+    BEGIN
+    CASE (SELECT money FROM operator WHERE id=1) WHEN x THEN SELECT 'equal';
+    ELSE SELECT 'not equal';
+    END CASE;
+    END;
+
+    当调用该存储过程并传进入参100，即执行 CALL pro_ck(100) ， 因operator表中id=1的行中money列的值是100，则Navicat终端显示 'equal'
+
+
+注意： 6、MySQL函数式编程 & 函数/2、函数（MySQL内置的）/5、CASE函数.txt   但那是CASE函数，并非CASE语句。
+
+（完）

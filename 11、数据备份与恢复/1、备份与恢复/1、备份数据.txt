@@ -1,0 +1,30 @@
+TODO:备份数据，其实是将数据库、数据表、表中数据转换为建库、建表、插入数据的sql语句。
+以下操作也可以通过点击navicat来完成。（以下命令尚未执行验证，似乎需要安装dump插件，因为MySQL只提供mysql开头的命令，例如登录命令）
+
+
+1、备份一个数据库（即复制整个数据库下所有表及数据）：
+    mysqldump -u user_name -p db_name > file_name.sql;
+    其中：
+    1、user_name是登录MySQL时的用户名，
+    2、db_name是想要备份的库的名称，
+    3、-p 是指该sql回车执行时，CMD会要求输入MySQL的密码，
+    4、file_name.sql是保存db_name库下所有表的CREATE建表语句和所有表中数据的INSERT语句的文件，记得写上绝对路径，扩展名并非一定要是.sql。
+
+2、备份一个数据库中的某些表（即复制某库下某些表及数据）：
+    mysqldump -u user_name -p db_name tab1 tab2 ... > file_name.sql;
+    其中：
+    1、tab1，tab2是db_name库下的表的名称。
+
+
+3、备份多个数据库（即复制多个库，以及各个库内所有的表及其数据）：
+    mysqldump -u user_name -p --databases db_name1 db_name2 ... > file_name.sql;
+    其中：
+    1、--databases这个关键词不能少，
+    2、db_name1 db_name2 等是要备份的各个库的名称
+
+4、备份MySQL中所有数据库（即复制所有库，以及每个库内的表及其数据）：
+    mysqldump -u user_name -p --all -databases > file_name.sql
+    其中：
+    1、--all和-databases两个关键词就是备份所有数据库的意思。
+
+（完）

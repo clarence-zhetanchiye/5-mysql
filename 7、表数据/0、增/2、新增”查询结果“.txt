@@ -1,0 +1,14 @@
+即：向数据表新增数据，被新增的数据来源于一个查询语句（常用语建中间表，见 9、性能优化/2、优化数据表/3、建中间表.txt ）
+    INSERT  [HIGH_PRIORITY | LOW_PRIORITY | DELAYED] [IGNORE] INTO tab_name [(column1, column2, ...)]
+    SELECT...语句 [ON DUPLICATE KEY UPDATE column1=v1,column2=v2,...];
+
+    其中：
+    SELECT...语句                 //从一个或多个表中查询，查询的结果就是一条条将会被插入到 tab_name 中的数据。
+    (column1, column2, ...)      //可以不写，不写时则 SELECT...语句 所查到的一条条数据，每一条的值必须和 tab_name 的所有列逐一对应，
+                                   每个列都要显示地有值。
+                                   若写了，则SELECT...语句 所查到的一条条数据，每一条的值都要和这里的列名的顺序一致，不能没有值。
+
+示例：
+    INSERT INTO users(`name`, age, hobby) SELECT call, num, note FROM table_1 WHERE ...;
+
+（完）

@@ -1,0 +1,49 @@
+【启动本地MySQL软件】
+    方式一：
+        （以下步骤1-3也可直接按 Ctrl+Shift+esc ）
+        1、右击桌面上 “我的电脑” 图标
+        2、点击下拉菜单中的 “管理”
+        3、点击 “服务和应用程序" ---> "服务"
+        4、找到 MySQL，点击“启动”即可。
+
+    方式二：
+        1、管理员权限运行 CMD （即DOS）
+        2、启动mysql
+             输入  net start mysql   后回车
+                        【如果不显示“MySQL服务正在启动”，即无法启动时，可进入到mysql被安装的路径中的 bin/ 处，输入cmd打开CMD，再输】
+                        【入该命令 net start mysql 就是启动被下载到本地的 mysql 的 server ，通过CMD登陆连接就可以操作mysql软件了】
+
+
+【操作本地MySQL软件】
+    方式一（使用CMD与MySQL交互）：
+        1、打开CMD
+        2、输入  mysql -h localhost -u root -p 后回车
+        3、输入自己下载mysql时设定的密码（自己笔记本上mysql设置的是最简单密码ok）  后回车
+        [4]、 跳过权限验证登录MySQL：mysqld --skip-grant-tables
+                修改root密码：update mysql.user set password=password('root') ，其中的password()是密码加密函数。
+        5、此时就进入了mysql数据库，按照 SQL 语句就可以操作mysql数据库。
+
+            show databases;			//显示mysql中的所有数据库，注意不能少了末尾的分号
+            create database 新database名；	//创建一个新的数据库
+            use  某database数据库名;		//选择要操作的数据库
+            show tables;			//显示所选数据库中所有的表
+            create table ......[建表的语句]；		//创建表
+            describe 某table;			//显示表结构体
+            select * from 某table名;		//显示表的所有数据
+            select ......				//查询语句，会显示相应查询语句下的结果，以表格形式展示
+        6、退出登陆
+             输入    quit  后回车
+
+        7、关闭mysql
+             输入 net stop mysql	后回车（注意末尾无分号）【关闭mysql软件】
+
+        8、关闭CMD
+             输入 exit
+
+
+    方式二（使用软件与MySQL交互）：
+        1、打开mysqlyong或 navicat，登陆mysql即可。
+
+
+
+（完）

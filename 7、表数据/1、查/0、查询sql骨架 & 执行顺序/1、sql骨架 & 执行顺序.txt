@@ -1,0 +1,19 @@
+各种复杂的查询语句，无一例外地要遵循下面这个查询语句的框架顺序（当然并非框架的每个部分都要使用）：
+SELECT ..①.. FROM ..②.. JOIN..ON..  WHERE..[NOT OR AND]..③..  GROUP BY..④..  HAVING...  ORDER BY...  LIMIT...  FOR...;
+
+    说明：
+    0、该语句先执行 FROM ..②.. JOIN..ON..   ，再依次执行WHERE及分组、HAVING、排序、分页  ，最后执行① （若①中有函数，则最末执行函数）
+    1、关键词DISTINCT、COUNT() SUM()等聚合函数、其他MySQL函数 ，在查询sql中被使用时，只能在①的位置；
+       TODO:且DISTINCT及这些函数，是在WHERE、GROUP BY、HAVING、ORDER BY、LIMIT等条件筛选出来的数据的基础上发挥作用的。
+    2、其中的②是数据表名。
+    3、HAVING是对组内的筛选。
+
+----------------------
+举一个反例：
+例如SELECT * FROM users WHERE age > 11 LIMIT 2 ORDER BY age;
+就会报错：1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for
+        the right syntax to use near 'ORDER BY age' at line 2
+即只能写为：SELECT * FROM users WHERE age > 11 ORDER BY age  LIMIT 2 ;
+
+
+（完）

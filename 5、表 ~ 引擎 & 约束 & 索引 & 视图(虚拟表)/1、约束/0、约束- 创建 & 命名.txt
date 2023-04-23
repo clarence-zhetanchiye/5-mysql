@@ -1,0 +1,131 @@
+约束：也称为CONSTRAINT，完整性约束。在用户新增或更新数据库中数据时，MySQL会检测新的数据是否符合相应列定义的约束。因此，约束的用途在于，始终
+     让相应列的数据，都是符合定义该列时定义的约束的。
+
+===================================================约束及其创建============================================================
+
+--------------------------------------------------实体完整性约束--------------------------------------------------------
+--PRIMARY KEY === “主键”
+    1、“主键”可以是表中的一列，即“单列主键”；也可以是表中多个列的组合，此时即是“复合主键”；（单列主键或复合主键）
+    2、一个数据表内只能有唯一一个“主键”；                             （唯一性）
+    3、构成“主键”的那一列或多个列的组合，“主键”的值必须是非null且不重复；   （非空、不重复）
+    4、复合“主键”不能包含可有可无（指若没有某一列也不影响主键的创建，则那一列不能加入到复合主键中）的列，不能包含重复的列。
+    【todo:“主键”的最重要特性：“主键”一个表最多有一个，取值非null不重复，且创建的同时自动创建了索引PRIMARY（可修改索引名）】！！！
+
+    建表时设置单列主键：
+    CREATE TABLE tab1(
+    id int AUTO_INCREMENT PRIMARY KEY, //todo:看这里。
+    usr varchar(30) NOT NULL,
+    password varchar(30) NOT NULL
+    );
+
+    建表时设置复合主键：
+    CREATE TABLE tab1(
+    id int AUTO_INCREMENT,
+    usr varchar(30) NOT NULL,
+    password varchar(30) NOT NULL,
+    PRIMARY KEY(`id`,`usr`)         //todo:看这里。设置“单列主键”也可以用该方式，如 PRIMARY KEY(`id`)
+    );
+
+
+--UNIQUE KEY === “唯一键”
+    1、“唯一键”可以是表中的一列，即“单列唯一键”；也可以是表中多个列的组合，此时即是“复合唯一键”；（单列唯一键或复合唯一键）
+    2、一个数据表内可以有多个“唯一键”；                                                     （可以有多个）
+    3、构成“唯一键”的那一列或多个列的组合，“唯一键”的值必须是可null但不重复（多个null不算重复）；   （可空、不重复）
+   【todo:唯一键的最重要特性：唯一键一个表可有多个，取值可null不重复，且创建的同时自动创建了索引UNIQUE（可修改索引名）】！！！
+
+   建表时设置单列唯一键：
+   CREATE TABLE tab1(
+   id int AUTO_INCREMENT,
+   usr varchar(30) NOT NULL,
+   password varchar(30) NOT NULL UNIQUE,  //todo:看这里的UNIQUE。
+   age int NOT NULL
+   );
+
+   建表时设置复合唯一键：
+   CREATE TABLE tab1(
+   id int AUTO_INCREMENT,
+   usr varchar(30) NOT NULL,
+   password varchar(30) NOT NULL,
+   UNIQUE KEY(`usr`,`password`)         //todo:看这里。类似的，设置“单列唯一键”也可以用该方式，如 UNIQUE KEY(`password`)
+   );
+
+--------------------------------------------------------参照完整性约束----------------------------------------------------
+--FOREIGN KEY ··· REFERENCES === 外键
+    0、todo:外键、参照列的设置都是在“从表”中进行，“主表”中不需要做什么！！！！！！
+    1、“从表” 和 “主表” 的引擎必须都是InnoDB，因为MySQL中目前只有存储引擎为InnoDB的表支持外键。
+    2、“主表”必须定义PRIMARY KEY。
+    3、“主表”的被参照列数据的类型必须何“从表”的外键列一致。todo：被参照列必须是“主表”中的PRIMARY KEY 或 UNIQUE KEY；
+       或是“主表”中若干列的组合，此时要求组合列具备UNIQUE KEY的特性。
+    4、todo “从表”中被设置为外键的列，会随之自动被建立为索引。外键的值要么是“主表”的被参照列的值，要么是null。
+    5、“从表”和“主表”是同一个表的，被称为自参照。
+
+   建从表时设置外键：【todo:外键、参照列的设置都是在“从表”中进行，“主表”中不需要做什么！！！！！！】
+   CREATE TABLE tab1(
+   id int AUTO_INCREMENT PRIMARY KEY,
+   usr varchar(30) NOT NULL,
+   password varchar(30) NOT NULL,
+   class_id int NOT NULL,
+   FOREIGN KEY (`class_id`) REFERENCES tab0(`id`) [MATCH FULL] [ON DELETE RESTRICT] [ON UPDATE RESTRICT] //todo:看这一行。
+   );
+   //todo:其中的(`class_id`)是当前“从表”中的字段。
+   //todo:其中的tab0是“主表”，tab0(`id`)中的id是“主表”中的字段。
+   //todo:其中的 MATCH FULL 可以不写，MATCH FULL 处可供选择的有 MATCH FULL、 MATCH PARTIAL 、MATCH SIMPLE 。
+   //todo:ON DELETE RESTRICT 和 ON UPDATE RESTRICT 是删除更新时的限制策略，不写时默认是ON DELETE RESTRICT 和 ON UPDATE RESTRICT 。
+   //todo:其中的 RESTRICT 处可供选择的有 RESTRICT、 CASCADE、 SET NULL、 SET DEFAULT、NO ACTION 。
+   //todo: 策略解释 ：
+   //todo: RESTRICT —— 当删除更新“主表”上某行的被参照列时，若该行的被参照列的值还在被“从表”引用，则MySQL拒绝本次删除更新操作。
+   //todo: CASCADE  —— 当删除更新“主表”上某行时，MySQL自动删除“从表”中参照该行的若干行数据。
+   //todo: SET NULL —— 当删除更新“主表”上某行时，MySQL自动将“从表”中参照该行的若干行的外键值置为null（前提是用户未申明外键列为NOT NULL）
+   //todo: SET DEFAULT —— 当删除更新“主表”上某行时，MySQL自动将“从表”中参照该行的若干行的外键值置为默认值（前提是用户已申明外键列的默认值）
+   //todo: NO ACTION —— 与RESTRICT相同。
+
+
+-------------------------------------------------------用户完整性约束-----------------------------------------------------
+--NOT NULL
+   1、约束相应的列的取值不能为空。
+
+   建表时设置某列取值不能为空：
+   CREATE TABLE tab1(
+   id int AUTO_INCREMENT,
+   password varchar(30) NOT NULL //todo:看这里。
+   );
+
+--CHECK(expression)
+    1、约束相应的列的取值要符合expression要求。
+    2、expression可以是简单的表达式，也可以是复杂表达式如查询语句。
+
+    建表时设置单列CHECK：
+    CREATE TABLE tab1(
+    id int AUTO_INCREMENT PRIMARY KEY,
+    age int NOT NULL CHECK(`age` > 6 AND `age` < 18), //todo:看这里的CHECK
+    usr varchar(30) NOT NULL
+    );
+
+    建表时设置CHECK：
+    CREATE TABLE tab1(
+    id int AUTO_INCREMENT PRIMARY KEY,
+    age int NOT NULL,
+    usr varchar(30) NOT NULL,
+    CHECK(`age` IN (SELECT `num` FROM tabNum))//todo:看这里的CHECK。
+    );
+
+
+
+================================================CONSTRAINT约束的命名=====================================================
+
+1、为了对 PRIMARY KEY 、 UNIQUE KEY 、 FOREIGN KEY ··· REFERENCES 、NOT NULL 、 CHECK 这些CONSTRAINT完整性约束进行增查改删，需
+   要在定义这些CONSTRAINT完整性约束的同时予以命名。
+2、只能给基于表的CONSTRAINT完整性约束予以命名（就是建表语句中独立成行、位于最后的CONSTRAINT完整性约束，而非建表语句中写在某列语句后面一起
+   的完整性约束），而不能给基于列的CONSTRAINT完整性约束指定命名（即建表语句中写在某列语句后面一起的完整性约束）。
+   CONSTRAINT完整性约束的命名的语法为  CONSTRAINT const_name {[PRIMARY KEY (...) | FOREIGN KEY (...) | CHECK (...)]} ，
+   其中的 const_name 就是中括号中一个完整性约束的名称，若中括号中写的是 PRIMARY KEY (...)，则const_name只能是 PRIMARY 。
+   示例：
+      CREATE TABLE tab1(
+      id int AUTO_INCREMENT PRIMARY KEY,
+      usr varchar(30) NOT NULL,
+      age int NOT NULL CHECK(`age`>6),//todo:不能在此写 age int NOT NULL CONSTRAINT const_name CHECK(`age` > 6) 来实现命名。
+      score int NOT NULL,
+      CONSTRAINT const_name CHECK(`score` > 60)//todo:这了实现了对CHECK型完整性约束的命名，命名为 const_name。
+      );
+
+（完）

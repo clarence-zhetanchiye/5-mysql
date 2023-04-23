@@ -1,0 +1,51 @@
+MySQL的IF语句的语法为：
+IF condition THEN action ;
+ELSEIF condition THEN action ; //这一行是可选的
+ELSE action ;                  //这一行是可选的
+END IF ;
+（其中的condition是条件，action是执行逻辑如提供返回值）
+
+1、在创建的"存储过程"内使用IF语句：
+1.1、
+    在Navicat终端执行如下MySQL代码，创建一个"存储过程"：
+    CREATE PROCEDURE pro_ck(IN x int)
+    BEGIN
+    IF 100 = x THEN SELECT 'one hundred'; ELSE SELECT 'zero' ;END IF;
+    END;
+
+    当调用该存储过程并传进入参10，即执行 CALL pro_ck(10) 时， 则Navicat终端显示 'zero'
+
+1.2、                     operator表
+    +----+-------+------+-------+
+    | id | money | rate | note  |
+    +----+-------+------+-------+
+    |  1 |   100 |  0.5 | hi    |
+    |  2 |   200 |    1 | hello |
+    |  3 |   300 |  1.5 | hey   |
+    +----+-------+------+-------+
+
+    在Navicat终端执行如下MySQL代码，在MySQL中创建一个"存储过程"：
+    CREATE PROCEDURE pro_ck_sql(IN x int)
+    BEGIN
+    IF x = (SELECT money FROM operator WHERE id=1) THEN SELECT 'one hundred'; ELSE SELECT 'zero'; END IF;
+    END
+
+    当调用该存储过程并传参100，即执行 CALL pro_ck_sql(100); ，因operator表中id=1的行中money列的值是100，故Navicat终
+    端显示 'one hundred'
+
+
+2、在创建的"存储过程"内使用IF语句，IF语句中混用sql：
+2.1、
+    在Navicat终端执行如下MySQL代码，在MySQL中创建一个"存储过程"：
+    CREATE PROCEDURE pro_ck_elseif(IN x int)
+    BEGIN
+    IF x = (SELECT money FROM operator WHERE id=1) THEN SELECT 'one hundred';
+    ELSEIF x=10 THEN SELECT 'ten';
+    ELSE SELECT 'zero';
+    END IF;
+    END;
+
+    当调用该存储过程并传参10，即执行 CALL pro_ck_elseif(10); ，因operator表中id=1的行中money列的值是100，故Navicat终
+    端显示 'ten'
+
+（完）

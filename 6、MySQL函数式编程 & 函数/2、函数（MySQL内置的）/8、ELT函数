@@ -1,0 +1,17 @@
+函数 ELT(N, string1, string2, string3, string4, …) 输出 string1, string2, string3, string4, … 中的第N个
+
+示例：
+    Select ELT(1, 'Learning', 'SQL', 'at', 'geeksforgeeks', 'is', 'fun') As Res_Str; //结果为'Learning'
+
+示例：
+    Select ELT(4, 'Learning', 'SQL', 'at', 'geeksforgeeks', 'is', 'fun') As Res_Str; //结果为'geeksforgeeks'
+
+示例：
+    Select ELT(8, 'Learning', 'SQL', 'at', 'geeksforgeeks', 'is', 'fun') As Res_Str; //结果 NULL
+
+
+
+重要用途是区间分组： ELT(INTERVAL(,,,),,,)    详见 7、表数据- 的sql/1、查/5、GROUP BY/8、区间分组INTERVAL.docx
+
+
+（完）

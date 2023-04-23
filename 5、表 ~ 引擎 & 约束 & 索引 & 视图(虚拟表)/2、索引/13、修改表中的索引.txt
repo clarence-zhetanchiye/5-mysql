@@ -1,0 +1,4 @@
+ALTER TABLE 表名tab_name ADD [PRIMARY | UNIQUE | FULLTEXT | SPATIAL] KEY 索引名k_name   //可以不用换行，这里是一行写不下才换行。
+ON `表名tab_name` (列名f1 (索引长度l) [ASC | DESC], 列名f2 [ASC | DESC], ···);
+
+（完）

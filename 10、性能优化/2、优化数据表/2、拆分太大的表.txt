@@ -1,0 +1,8 @@
+字段（即列的数量）特别多且有些字段的使用频率很低的表，可以将它分解成多个表。否则当这个表的数据量很大时，查询数据的速度会很漫。
+
+分解方法常常是：将原始表A拆分成a、b两张表，让a、b两张表的id和原始表A的id列保持一致。
+    原本查询语句：SELECT * FROM A WHERE usr='jack';
+    拆解表后的查询语句：SELECT * FROM a,b WHERE a.id=b.id AND a.usr='jack';
+
+
+（完）

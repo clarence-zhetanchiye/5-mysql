@@ -1,0 +1,16 @@
+示例一、
+    CREATE EVENT IF NOT EXISTS my_event
+    ON SCHEDULE EVERY 5 SECOND
+    ON COMPLETION PRESERVE
+    DO INSERT INTO table_name(user,age,create_time) VALUES('root',11,NOW());
+
+示例二、
+    CREATE EVENT IF NOT EXISTS my_event
+    ON SCHEDULE EVERY 1 MONTH  STARTS  DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
+    ON COMPLETION PRESERVE
+    ENABLE
+    DO CALL my_processor();
+
+
+
+（完）

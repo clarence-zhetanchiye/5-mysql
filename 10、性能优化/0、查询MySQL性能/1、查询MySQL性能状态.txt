@@ -1,0 +1,21 @@
+SHOW STATUS LIKE 'Connections';     //连接MySQL服务器的次数
+SHOW STATUS LIKE 'Uptime';          //MySQL服务器的上线时间
+SHOW STATUS LIKE 'Slow_queries';    //慢查询的次数
+SHOW STATUS LIKE 'Com_select';      //查询的次数
+SHOW STATUS LIKE 'Com_insert';      //插入的次数
+SHOW STATUS LIKE 'Com_delete';      //删除的次数
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

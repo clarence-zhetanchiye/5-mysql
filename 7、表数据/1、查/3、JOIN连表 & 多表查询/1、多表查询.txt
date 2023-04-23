@@ -1,0 +1,10 @@
+可以在一条查询sql中从多个表查询多个列的数据，多个表之间用逗号隔开（参见《MySQL从入门到精通》P135页）：
+
+示例1：
+    SELECT tab1.id, tab1.user, tab2.id, tab2.user, note FROM tab1, tab2;   //note只在tab1中出现，故无需写tab1.note
+    结果为：就是 SELECT id,user,note FROM tab1; 和 SELECT id,user FROM tab2; 两个查询结果的完全排列组合对应到一起，也成为笛卡尔积。
+
+
+实际生产中，更有意义地做法一般是JOIN连表查询，见 2、sql多表查询&JOIN.docx
+
+（完）

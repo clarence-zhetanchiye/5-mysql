@@ -1,0 +1,57 @@
+查询sql中使用WHERE条件时，WHERE条件其实就是使用MySQL的那些比较运算符。（被作为WHERE条件的字段，并非一定得被查询出来。）
+
+示例、
+
+>、=、<、!=
+    SELECT id, user FROM tab1 WHERE id>9;
+
+    SELECT id, user FROM tab1 WHERE id=9;
+
+    SELECT id, user FROM tab1 WHERE age<19;
+
+    SELECT id, user FROM tab1 WHERE age>=29;
+
+    SELECT id, user FROM tab1 WHERE age!=9;
+
+    SELECT id, user, age FROM tab1 WHERE user='jack';
+
+
+BETWEEN.. AND..
+    SELECT id, user FROM tab1 WHERE age BETWEEN 60 AND 100; //等价于SELECT id, user FROM tab1 WHERE age>=60 AND age<=100;
+
+    SELECT id, user FROM tab1 WHERE age NOT BETWEEN 70 AND 80; //等价于SELECT id, user FROM tab1 WHERE age<70 OR age>80;
+
+
+
+IN：
+    SELECT id, user FROM tab1 WHERE age IN(11,22,33);
+
+    SELECT id, user FROM tab1 WHERE age NOT IN(11,22,33);
+
+    SELECT id, user FROM tab1 WHERE user NOT IN('jack', 'tom', 'mary');
+
+
+
+IS NULL：
+    SELECT id, user, age, note FROM tab1 WHERE note IS NOT NULL;
+
+    SELECT id, user, age, note FROM tab1 WHERE note IS NULL;
+
+
+
+LIKE：
+    SELECT id, user, age, note FROM tab1 WHERE note LIKE '%stu'; //查询note是以stu结尾的四个及以上字符的记录。
+                                                  TODO：LIKE条件只用于字符串，其中的 % 匹配一到多个字符，一个汉字也只算作一个字符。
+
+    SELECT id, user, age, note FROM tab1 WHERE note NOT LIKE 'C_S'; //查询Note是三个字符，且第一个字符是C，第三个字符是S 的记录。
+                                                  TODO:LIKE条件只用于字符串，其中的 _ 匹配一个字符，一个汉字也只算作一个字符。
+
+
+REGEXP：
+    SELECT id, user, age, note FROM tab1 WHERE note REGEXP 'a+c'; //匹配note值里，含有字符c且在字符c前面的某个位置出现过一次字符a
+                                                  TODO:REGEXP正则条件只用于字符串。
+
+    SELECT id, user, age, note FROM tab1 WHERE note REGEXP '^a..z$'; //匹配note值里，以a开头，z结尾，共四个字符的记录。
+                                                  TODO:MySQL支持的正则见《MySQL从入门到精通P158页》。
+
+（完）=、IN、BETWEEN、IS NULL、LIKE、REGEXP

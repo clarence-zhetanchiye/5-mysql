@@ -1,0 +1,12 @@
+1、增加CONSTRAINT完整性约束
+    ALTER TABLE tab1 ADD CONSTRAINT PRIMARY PRIMARY KEY(`id`);   //给tab1表新增主键完整性约束。
+
+2、通过执行查看数据表的语句 SHOW CREATE TABLE `tab1`;  就可以看到建表语句中的约束
+
+3、修改CONSTRAINT完整性约束
+    没有专门的语句，需要先删除旧的完整性约束，再添加新的完整性约束，从而实现完整性约束的修改。
+
+4、删除CONSTRAINT完整性约束
+    ALTER TABLE tab1 DROP FOREIGN KEY const_fk; //删除tab1表中的名为 const_fk 的外键完整性约束。
+
+（完）

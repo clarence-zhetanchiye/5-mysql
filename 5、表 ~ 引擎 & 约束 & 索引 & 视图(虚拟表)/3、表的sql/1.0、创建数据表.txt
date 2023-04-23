@@ -1,0 +1,89 @@
+====================================================== 说在前面 ========================================================
+
+在MySQL的sql语句中，用反引号包起来的表示是表名或列名，单引号包起来的表示是mysql字符串类型的值，分号表示是一条建表、crud等的sql语句的结束。
+在MySQL的sql语句中没有双引号（但golang中使用crud的sql语句时，会用双引号包起来作为一个字符串。）
+
+在golang中申明一个字符串类型的变量来承接写建表的sql语句时，由于一般要换行，因此需要用一对反引号来囊括住这个建表的sql语句，此时这个建表的sql
+语句里用反引号包起来的表名、列名都应当去掉反引号，否则执行起来会报语法错误。
+例如
+var createTable = `CREATE TABLE IF NOT EXISTS teachers (  
+name varchar(64),
+age bigint(20) DEFAULT NULL,
+frequent bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1`
+中的teachers、name、age、frequent都不可以再用反引号。对于一般的crud的sql语句也是如此，不过一般的sql语句若是在golang中被用双引号括起来，
+则里面的表名列名都可以用反引号包起来。
+
+
+=====================================================创建数据表示例========================================================
+实际生产中一般将sql语句写在一个专门的.sql文件中，在项目开始时就设计好写好。
+
+CREATE TABLE IF NOT EXISTS `t_cms_resource_info` ( //这里表名可用反引号；也可不用，注意空格就行。IF NOT EXISTS 若该表已存在则此次就不会创建。
+  `id` bigint(64) NOT NULL AUTO_INCREMENT COMMENT 'ID',	//只要字段是键(并非必须是主键)，就可设为自增，但一个表中只能有一个自增字段。https://www.cnblogs.com/jkko123/p/6294717.html
+  `operator_id` bigint(20) NOT NULL COMMENT '二级运营商ID',			
+  `outer_resource_id` bigint(20) NOT NULL COMMENT '内容源方内容ID',		//这里的列名可以用反引号；也可以不用，注意空格就行。
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',				//COMMENT空格后的说明内容，必须包在单引号中。
+ user_age TINYINT(1) DEFAULT '0' COMMENT '年龄'，				//默认值为0，虽然当前字段user_age是数字类型，其默认值还是写在单引号中，直接写数字也行。
+  `create_time` timestamp NOT NULL DEFAULT NOW() COMMENT '创建时间',    	//默认时间调用MySQL的NOW()函数。
+  `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',	//注意小括号内的每一行末尾都有逗号。
+  `remark` varchar(128) DEFAULT NULL COMMENT '备注',					
+  PRIMARY KEY (`id`) USING BTREE			                    //指定主键			//注意反括号前的最后一行末尾，不能有逗号。
+) ENGINE=InnoDB AUTO_INCREMENT = 30001 CHARSET=utf8mb4 COMMENT='内容主体表';	//注意最后有分号。最后的AUTO_INCREMENT=30001是设定自增不从默认的1开始，
+										   而从这里指定的30001开始。【在nevicat上看时也是显示id接下来自增后的值】
+
+DROP TABLE IF EXISTS `t_cms_card`；					//如果已经存在该名称的表，就先删除，方便再创建该名称的自己的表。
+CREATE TABLE `t_cms_card` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `operator_id` bigint(20) NOT NULL COMMENT '二级运营商ID',
+  `card_name` varchar(64) NOT NULL COMMENT '卡片名称',
+  `description` varchar(256) NOT NULL COMMENT '卡片说明',
+  `card_type` tinyint(1) NOT NULL COMMENT '卡片类型,10-一文一大图，11-一文三小图，20-小视频卡组',
+ `encryption` enum('0','1')  NOT NULL COMMENT '0代表不需要加密，1代表需要加密', //enum('0','1')是枚举，意为值只能是括号中之一或null，本例中只能是字符串1或串0。
+  `title` varchar(256)  NULL DEFAULT '' COMMENT '内容标题',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',          //当sql语句中不写该字段及其值时，则myslq会自动填充当前时间戳。
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',     //当列属性带有ON UPDATE CURRENT_TIMESTAMP时，
+														别的任何字段变更都会导致该字段更新
+  INDEX `idx_query`(`title`) USING BTREE						                   //创建索引，将title字段指定为索引，索引名自定义为idx_query，索引名可省略。
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='资源卡片样式表';    //如果title字段也没有反引号，则这里指定索引时括号内的title也可以无反引号。
+
+
+=================================================== 字符集 & 校对规则 ====================================================
+
+CREATE TABLE `t_resource_panel` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `dept_id` bigint(20) NOT NULL COMMENT '部门ID',
+  `panel_name` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '板块名称',			//注意这里的COLLATE utf8mb4_bin
+  `panel_format` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '板块支持格式,逗号分割',	//注意这里的COLLATE utf8mb4_bin
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `t_resource_panel_panel_name_IDX` (`panel_name`,`company_id`) USING BTREE,
+  KEY `idx_query` (`dept_id`) USING BTREE,
+  KEY `t_resource_panel_panel_name_en_IDX` (`panel_name_en`,`company_id`) USING BTREE		//创建索引，KEY也可以写作INDEX。
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='内容板块信息表';  //注意这里的COLLATE utf8mb4_bin
+
+//注意这里的COLLATE utf8mb4_bin。
+它是作用是： 对于mysql中那些字符串类型的列，如VARCHAR，CHAR，TEXT类型的列，都需要有一个COLLATE类
+型来告知mysql如何对该列进行排序和比较。简而言之，COLLATE会影响到ORDER BY语句的顺序，会影响到WHERE条
+件中大于小于号筛选出来的结果，会影响**DISTINCT**、**GROUP BY**、**HAVING**语句的查询结果。另外，mysql
+建索引的时候，如果索引列是字符类型，也会影响索引创建，只不过这种影响我们感知不到。总之，凡是涉及到字符类型
+比较或排序的地方，都会和COLLATE有关。
+详见 https://www.cnblogs.com/qcloud1001/p/10033364.html
+
+COLLATE通常是和数据编码（CHARSET）相关的，一般来说每种CHARSET都有多种它所支持的COLLATE，并且每种CHARSET都指定一种COLLATE为默认值。
+例如GBK编码的默认COLLATE为gbk_chinese_ci，utf8mb4编码的默认值为utf8mb4_general_ci。
+在mysql中使用show collation指令可以查看到mysql所支持的所有COLLATE
+
+很多COLLATE都带有_ci字样，这是Case Insensitive的缩写，即大小写无关，也就是说"A"和"a"在排序和比较的时候是一视同仁的。selection * from table1 where field1="a"同
+样可以把field1为"A"的值选出来。与此同时，对于那些_cs后缀的COLLATE，则是Case Sensitive，即大小写敏感的。
+
+在国内比较常用的是utf8mb4_general_ci（默认）、utf8mb4_unicode_ci、utf8mb4_bin这三个
+utf8mb4_bin的比较方法其实就是直接将所有字符看作二进制串，然后从最高位往最低位比对。所以很显然它是区分大小写的。
+utf8mb4_unicode_ci和utf8mb4_general_ci对于中文和英文来说，其实是没有任何区别的
+推荐使用utf8mb4_unicode_ci，对于已经用了utf8mb4_general_ci的系统，也没有必要花时间改造。
+
+
+这里顺便讲个题外话，mysql中有utf8和utf8mb4两种编码，在mysql中请大家忘记utf8，永远使用utf8mb4。这是mysql的一个遗留问题，mysql中的utf8最多
+只能支持3bytes长度的字符编码，对于一些需要占据4bytes的文字，mysql的utf8就不支持了，要使用utf8mb4才行。
+
+
+（完）

@@ -1,0 +1,8 @@
+创建一张和oldTab表结构一模一样的没有数据的新表newTab。
+    CREATE TABLE [IF NOT EXISTS] `newTab` LIKE `oldTab`;
+
+
+将oldTab表的结构和所有数据，原模原样地复制到新表newTab中。
+    CRETE TABLE [IF NOT EXISTS] `newTab` AS SELECT * FROM `oldTab`;
+
+（完）

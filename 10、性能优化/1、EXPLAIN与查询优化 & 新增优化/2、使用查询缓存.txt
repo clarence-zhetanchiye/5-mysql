@@ -1,0 +1,35 @@
+todo:对于更新、删除比较频繁的表，存在于MySQL SERVER 的内存中的查询缓存（也叫高速缓存）实际上派不上多大用场，因此MySQL 8.0 版本
+ 不再有查询缓存功能。
+
+开启MySQL的查询缓存（也叫高速缓存）后，用于使用查询sql从数据表中查询到的数据，返回给用户的同时也会缓存在MySQL SERVER内存的查询缓存中；
+当用户之后再次做相同的查询sql时，就可以从MySQL SERVER内存的查询缓存（也叫高速缓存）中快速获取到数据；
+一旦数据表有变化，例如新增了数据，这个表对应的MySQL SERVER内存中的查询缓存（也叫高速缓存）就会被清空，即应用MySQL内存中的查询缓存不会
+导致查询到的数据不是数据表最新的。
+
+1、检查MySQL是否开启了查询缓存（也叫高速缓存）：
+    SHOW VARIABLES LIKE '%query_cache%';
+    结果为：
+    +------------------------------+---------+
+    | Variable_name                | Value   |
+    +------------------------------+---------+
+    | have_query_cache             | YES     |
+    | query_cache_limit            | 1048576 |
+    | query_cache_min_res_unit     | 4096    |
+    | query_cache_size             | 0       |
+    | query_cache_type             | ON      |
+    | query_cache_wlock_invalidate | OFF     |
+    +------------------------------+---------+
+    其中：
+    1、have_query_cache：当前版本MySQL是否默认配置了查询缓存（也叫高速缓存）。
+    2、query_cache_size：MySQL分配给查询缓存（也叫高速缓存）的空间，单位为M，若为零，表示MySQL的查询缓存（也叫高速缓存）是关闭状态。
+    3、query_cache_type：MySQL查询缓存（也叫高速缓存）的开启状态，0或OFF表示未开启，1或ON表示已开启，2或DEMAND表示只有当SELECT查
+       询语句中含有SQL_CACHE关键词时才提供高速缓存。
+
+2、使用MySQL的查询缓存（也叫高速缓存）功能：
+    方式一、打开MySQL的查询缓存（也叫高速缓存）功能，并将开启状态query_cache_type的值设置为2
+
+    方式二、打开MySQL的查询缓存（也叫高速缓存）功能，并采用这样的查询语句  SELECT SQL_CACHE ... ; 即在原本的查询sql中加上SQL_CACHE
+           关键词。相应地，已开启查询缓存（也叫高速缓存）而又不想使用查询缓存，则可采用这样的查询语句 SELECT SQL_NO_CACHE ... ;
+
+
+（完）

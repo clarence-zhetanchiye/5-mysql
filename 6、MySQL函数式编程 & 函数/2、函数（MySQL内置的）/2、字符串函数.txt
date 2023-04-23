@@ -1,0 +1,74 @@
+sql语句中可以夹杂地使用上字符串函数。详细的参见《MySQL从入门到精通》P164的表10.3
+
+1、（注意，以下函数中，s开头的参数是字符串，记得要含左右单引号，len是数字，n是数字）
+    函数                                   简要解释                                   作用
+
+*   CHAR_LENGTH(s)                       字符计数                                   计算s的字符个数
+    LENGTH(s)                            字符计数                                   计算s的字节数
+
+*   CONCAT(s1,s2,...)                    连接s1,s2,...                            任一入参为null则结果为null，参数如s1为数字，
+                                                                                 需写为 CONCAT(CAST(s1 AS CHAR),s2)
+*   CONCAT_WS(x,s1,s2,...)               字符串连接                                  用x连接s1,s2,...
+    REPEAT(s,n)                          字符串连接                                  s重复n次
+
+    LEFT(s,n)                           字符串截取                                   返回s左边的n个字符
+    RIGHT(s,n)                          字符串截取                                   返回s右边的n个字符
+*   SUBSTRING(s,n,len)                  字符串截取                                   返回s中第n个字符开始的len个字符
+    MID(s,n,len)                        字符串截取                                   同SUBSTRING(s,n,len)
+
+    LTRIM(s)                            字符串去除                                   去除s左边开头的空格
+    RTRIM(s)                            字符串去除                                   去除s右边结尾的空格
+    TRIM(s)                             字符串去除                                   去除s左右两边开头和结尾的空格
+    TRIM(s1 FROM s)                     字符串去除                                   去除s左右两边开头和结尾的s1
+
+    INSERT(s1,x,len,s2)                 字符串替换                                   s1中第x个字符开始的len个字符替换为s2
+    LPAD(s1,len,s2)                     字符串替换                                   s1左边的len个字符替换为s2
+    RPAD(s1,len,s2)                     字符串替换                                   s1右边的len个字符替换问s2
+    REPLACE(s,s1,s2)                    字符串替换                                   将s中的s1替换为s2
+
+    UPPER(s)或UCASE(s)                   字符串大写                                   s的所有字母变为大写
+    LOWER(s)或LCASE(s)                   字符串小写                                   s的所有字母变为小写
+
+    LOCATE(s1,s)或POSITION(s1 IN s)      字符串定位                                   返回s中若干s1开始的若干位置
+    INSTR(s,s1)                          字符串定位                                   返回s中第一个s1开始的位置
+    FIND_IN_SET(s1,s2)                   字符串定位                                   返回s2中符合模糊匹配式s1的开始位置
+
+    ELT(n,s1,s2,...)                    字符串寻找                                    返回s1,s2,... 中的第n个
+    FIELD(s,s1,s2,...)                  字符串寻找                                    返回s1,s2,... 中第一个符合模糊匹配式s的
+
+    STRCMP(s1,s2)                       字符串比较                                   比较s1和s2
+    REVERSE(s)                          字符串倒序                                   将s的字符顺序反过来
+    SPACE(n)                            返回n个空格
+
+
+
+
+2、在sql中的使用示例：【函数中的参数可以是数据表列名、一个值、一个查询sql（要用小括号包起来）】
+
+SELECT CHAR_LENGTH('abc');    //会输出3
+
+SELECT id, `name`, CHAR_LENGTH(`name`) AS num FROM users WHERE id=8;
+结果为：
++----+------+------+
+| id | name | num  |
++----+------+------+
+|  8 | ck   |    2 |
++----+------+------+
+
+SELECT id, `name`, REVERSE(`name`) AS num FROM users WHERE id=8;
+结果为：
++----+------+------+
+| id | name | num  |
++----+------+------+
+|  8 | ck   | kc   |
++----+------+------+
+
+SELECT id, `name`, CHAR_LENGTH((SELECT `name` FROM users WHERE id=1)) FROM users WHERE id=1;
+结果为：
++----+------+----------------------------------------------------+
+| id | name | CHAR_LENGTH((SELECT `name` FROM users WHERE id=1)) |
++----+------+----------------------------------------------------+
+|  1 | jack |                                                  4 |
++----+------+----------------------------------------------------+
+
+（完）

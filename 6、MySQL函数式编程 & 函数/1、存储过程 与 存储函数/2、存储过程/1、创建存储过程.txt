@@ -1,0 +1,36 @@
+创建存储过程的语法为：
+
+DELIMITER \
+CREATE PROCEDURE pc_name ([IN | OUT | INOUT] param_name type)//小括号内可以无参数，也可多参数，如 (IN x varchar(20) , y int)
+[characteristic]
+BEGIN
+...
+END
+\
+DELIMITER ;
+
+其中：
+1、pc_name 是当前 "存储过程" 的名称，可自定义，不区分大小写，切记不要与MySQL的系统关键词重名；
+2、IN | OUT | INOUT 任填其一或不填写，IN表示参数是入参，OUT表示参数是出参，INOUT表示参数既可以是入参也可以是出参；
+3、param_name 是参数的名称，可自定义；
+4、type 是参数的数据类型，必须只能是MySQL中的数据类型；
+5、characteristic部分可写可不写，是说明存储过程的，相当于对这个存储过程功能的注释说明；？？？参见《MySQL从入门到精通》P242页表14.3
+6、... 是存储过程的具体内容，可以包含 变量的申明、控制语句、sql语句
+7、\这个反斜杠，由于...中的每一行sql语句都需要用分号来表示结束，如果存储过程的语法中END后面也用分号，则冲突，因此一般需要在写创建存储过
+   程前，先更改语句结束标志符号，更改的语法为执行 DELIMITER my_symbol  其中的my_symbol就是想要更改为的标志符号，例如反斜杠，即
+   DELIMITER \  ，最后再执行 DELIMITER ; 从而变为系统默认的分号作为结束标志符号。
+
+例如：
+DELIMITER \
+CREATE PROCEDURE ck_name (IN x int)
+BEGIN
+DECLARE v varchar(20);
+IF x=1 THEN SET v='one';
+ELSE SET v='two';
+END IF;
+INSERT INTO my_table VALUES('jack', v);         //注意看这里，v这个变量夹杂进了sql语句，意思是将v代表的值放进sql中执行。
+END
+\
+DELIMITER ;
+
+（完）

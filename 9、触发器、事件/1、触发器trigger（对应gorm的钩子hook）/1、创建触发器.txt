@@ -1,0 +1,47 @@
+创建触发器：
+    DELIMITER \
+    CREATE  TRIGGER  trigger_name  BEFORE|AFTER  INSERT|UPDATE|DELETE  ON  table_name  FOR  EACH  ROW  act...
+    \
+    DELIMITER ;
+
+    说明：
+    0、DELIMITER \               //由于触发器的具体逻辑act...中，其实也是sql或MySQL函数式编程，其内的每部分也会用默认的分号作为分隔符
+                                   如果创建触发器的CREATE语句的末尾也用分号结束，会混淆，故在开始时更改分隔符为反斜杠，也可以是其他符号。
+    1、trigger_name              //是自定义触发器的名称；
+    2、BEFORE|AFTER          //选填一个，表示在用户对表table_name进行 INSERT|UPDATE|DELETE 的操作的之前还是之后，才触发act... 逻辑。
+    3、INSERT|UPDATE|DELETE      //选填一个，表示用户对表table_name是进行新增还是更新还是删除数据的操作时，才触发act... 逻辑。
+    4、table_name                //表名称，注意，一张表里，INSERT最多只能创建一个BEFORE触发器，也最多只能创建一个AFTER触发器，但可以
+                                   两个同时都各创建一个。 UPDATE和DELETE也是同理。
+    5、FOR  EACH  ROW            //意思是用户对数据表table_name中任意一行进行 INSERT|UPDATE|DELETE 操作时，都触发act... 逻辑。
+    6、act...                    //触发器的具体逻辑，可以是一条sql，也可以是多条sql（这多条sql需全部放置在 BEGIN...END 之间）。
+    6、\                         //末尾的这个反斜杠，表示创建触发器的过程结束。
+    7、DELIMITER ;               //表示将改成的分隔符反斜杠\重新设置回默认的分号;
+
+    注意：
+    触发器的逻辑功能act...中不能有事务，也不能有CALL语句。
+
+
+示例1：
+    DELIMITER \
+    CREATE  TRIGGER  trigger_name  AFTER  INSERT  ON  table_name  FOR  EACH  ROW
+    INSERT INTO my_log(column1) VALUES(NOW());
+    \
+    DELIMITER ;
+
+    说明：意思是在用户向table_name表插入一条数据后，就会触发当前的触发器trigger_name，该触发器会向my_log表插入当前的时间这样一条数据。
+
+
+
+示例2：
+    DELIMITER \
+    CREATE  TRIGGER  trigger_name  BEFORE  DELETE  ON  table_name  FOR  EACH  ROW
+    BEGIN
+    INSERT INTO my_log(column1) VALUES(NOW());
+    INSERT INTO time_log(column1) VALUES('deleted action');
+    \
+    DELIMITER ;
+
+    说明：意思是在用户向table_name表插入一条数据前，就会触发当前的触发器trigger_name，该触发器会向my_log表插入当前的时间这样一条数据，
+         并向time_log也插入一条数据。
+
+（完）

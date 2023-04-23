@@ -1,0 +1,21 @@
+1、
+    CREATE [PRIMARY | UNIQUE | FULLTEXT | SPATIAL] INDEX 索引名k_name                //可以不用换行，这里是一行写不下才换行。
+    ON `表名tab_name` (列名f1 [(索引长度l)] [ASC | DESC], 列名f2 [ASC | DESC], ···);
+
+参见:建表时创建索引.txt 。
+
+todo--------------------------------更推荐用方式1，因为使用ALTER开头的sql语句修改表结构时，可能导致数据表中的数据全部丢失！！！
+
+2、增加索引
+    ALTER TABLE oldTab ADD INDEX 自定义索引名 (`列1`);                        增加一个索引。
+    ALTER TABLE oldTab ADD INDEX 自定义索引名 (`列1`,`列2`, ···);              增加一个联合索引。
+
+3、增加唯一索引
+    ALTER TABLE oldTab ADD UNIQUE [自定义索引名] (`列1`);                       增加一个唯一索引。（索引可起名，也可不起名）
+
+4、增加主键索引
+    ALTER TABLE oldTab ADD PRIMARY KEY (列名);                                 增加一个主键索引。
+
+
+todo:-----------------------------向已有数据的表中新增索引，MySQL会自动将表中的数据维护到索引中，从而新增的索引会生效！
+（完）

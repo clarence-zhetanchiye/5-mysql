@@ -1,0 +1,30 @@
+ANY类型的嵌套查询，ANY(...)的小括号里的嵌套查询只能是返回数据表中某一列的一个或多个值。
+
+
+ANY类型的嵌套查询的ANY前面必须是比较运算符，ANY类型的嵌套查询含义是只需要和ANY(...)小括号内查询到列的结果集的任选一值进行比较：
+
+各种情况分析：
+    SELECT s1 FROM t1 WHERE s1 > ANY (SELECT s1 FROM t2);
+    假设表t1是(10)，
+    如果表t2是(21,14,6),则表达式为true；
+    如果表t2是(20,10)，则表达式为false；
+    如果表t2是(null，null，null)，则表达式为unknown。
+    如果表t2为空表，则表达式为false；
+
+可以简单记忆为：
+    ... >= ANY(SELECT column1...)      无null非空表参与比较时等价于       ... >= (SELECT MIN(column1) ...)
+    ... >  ANY(SELECT column1...)      无null非空表参与比较时等价于       ... >  (SELECT MIN(column1) ...)
+    ... <= ANY(SELECT column1...)      无null非空表参与比较时等价于       ... <= (SELECT MAX(column1) ...)
+    ... <  ANY(SELECT column1...)      无null非空表参与比较时等价于       ... <  (SELECT MAX(column1) ...)
+    ... =  ANY(SELECT column1...)      无null非空表参与比较时等价于       ... IN (SELECT column1...)
+    ... != ANY(SELECT column1...)                               //虽不报错但无实际意义，因为只要不等于ANY()小括号中的某一个值就行。
+
+
+用法示例：
+    SELECT * FROM tab_a WHERE age>ANY(SELECT num FROM users);
+
+    SELECT * FROM tab_a WHERE id = ANY(SELECT id FROM users);
+
+    SELECT * FROM tab_a WHERE 1<ANY(SELECT pass_word FROM users WHERE id=1);
+
+（完）

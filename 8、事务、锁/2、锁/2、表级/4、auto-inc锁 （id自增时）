@@ -1,0 +1,5 @@
+AUTO_INCREMENT 即自增 的功能就是 auto_inc锁 实现的。
+
+参见：https://xiaolincoding.com/mysql/lock/mysql_lock.html#auto-inc-%E9%94%81
+
+（完）

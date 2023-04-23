@@ -1,0 +1,9 @@
+查询sql中使用LIMIT用于分页。
+
+使用示例：
+    SELECT * FROM table_name WHERE user='xx' ORDER BY age LIMIT a,b;
+    //LIMIT a,b 的意思是，筛选并排序后查询到的结果集中，跳过前面a条，返回接下来的b条数据。
+    //另外，LIMIT a,b 也可以省略a不写，直接写为 LIMIT b   则表示跳过0条，返回接下来的b条数据。
+
+
+（完）

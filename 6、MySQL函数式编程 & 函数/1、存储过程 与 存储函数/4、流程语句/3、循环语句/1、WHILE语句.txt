@@ -1,0 +1,21 @@
+MySQL的WHILE语句的语法为：
+WHILE condition DO action END WHILE;     //意为只要当condition条件成立，action就不断地循环执行。
+
+1、在创建的"存储过程"内使用WHILE语句：
+1.1、
+    从1累加到100
+    在Navicat终端执行如下MySQL代码，在MySQL中创建一个"存储过程"：
+    CREATE PROCEDURE pro_ck(out sum int)
+    BEGIN
+    DECLARE i int DEFAULT 0;
+    DECLARE s int DEFAULT 0;
+    WHILE i < 100 DO
+    SET i=i+1;
+    SET s=s+i;
+    END WHILE;
+    SET sum=s;
+    END
+    当调用该存储过程并传进接收出参的@s，即执行 CALL pro_ck(@s) ， 则执行SELECT @s 后，Navicat终端就会显示5050
+
+
+（完）

@@ -1,0 +1,39 @@
+以下详见《MySQL从入门到精通》P179、P183
+
+1、加密函数（注意，以下函数中的参数都是字符串）
+    函数                      简要解释                                   作用
+    PASSWORD(str)            对str加密                       str加密后的结果xxx无法再解密得到str。应用场景：对用户输入的密码str
+                                                            进行加密，加密结果xxx保存进数据表；当用户下次输入密码str登录时，用
+                                                            该函数加密str，将加密结果和xxx对比，如果一致，表示登录密码正确。
+    MD5(str)                 对str加密                       本质上应该其实就是计算str的摘要。用途和PASSWORD(str)类似。
+
+    ENCODE(str, pwd)         使用秘钥pwd对str加密             加密结果是一个二进制数，故加密结果必须用BLOB类型的数据表列来存储。
+    DECODE(crypt_str, pwd)   使用秘钥pwd对crypt_str解密       其中的crypt_str是ENCODE(str, pwd)的加密结果。解密结果就是str。
+
+
+2、其他函数
+    函数                      简要解释                                   作用
+    ASCII(str)              求ASCII码                        返回s的第一个字符的ASCII码
+
+
+    BIN(x)                  进制转换                          返回x的二进制编码
+    OCT(x)                  进制转换                          返回x的八进制编码
+    HEX(x)                  进制转换                          返回x的十六进制编码
+    CONV(x,f1,f2)           进制转换                          将进制为f1的x变为f2进制数
+
+
+    INET_ATON(IP)           IP转数字                          将IP地址转换为数字表示
+    INET_NTOA(N)            数字N转IP                         将数字N转为IP形式
+
+
+    GET_LOCT(name, time)    创建并获取锁                       创建名为name、持续时间为time秒的锁。获取锁成功返回1，获取超时返回0；
+                                                             出错则返回null。
+    RELEASE_LOCK(name)      释放锁                            使用完名为name的锁后释放该锁。释放成功返回1，超时返回0，出错返回null。
+
+    IS_FREE_LOCK(name)      判断锁                            获取锁之前判断该锁是否是已被释放、可以获取的锁。
+
+
+    BENCHMARK(n,expr)       测试MySQL的运行速度                 讲表达式expr重复执行n次，返回消耗的时间。expr可以是一个小括号包起来
+                                                              的查询sql，但该查询sql的返回值只能是一个值，而不能是多个值。
+
+（完）

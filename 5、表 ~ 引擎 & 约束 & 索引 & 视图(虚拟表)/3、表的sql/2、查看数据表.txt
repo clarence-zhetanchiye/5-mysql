@@ -1,0 +1,10 @@
+查看数据表的sql并非查看表的全部数据，而是查看数据表的结构，即数据表中列的定义信息，相当于查看创建表时写的建表sql。
+
+--查看数据表（以下的DESCRIBE可以简写为DESC，以下sql语句中的反引号可省略）
+    SHOW CREATE TABLE `tab1`;                           查看数据表tab1的表结构。
+    DESCRIBE `ab1`;                                     查看数据表tab1整张表所有列的定义信息。
+    DESCRIBE `tab1` `age`;                              查看数据表tab1中age这一列的定义信息。
+    SHOW COLUMNS FROM `tab1`;                           查看数据表tab1整张表所有列的定义信息。
+    SHOW COLUMNS FROM `tab1.age`;                       查看数据表tab1中age这一列的定义信息。
+
+（完）

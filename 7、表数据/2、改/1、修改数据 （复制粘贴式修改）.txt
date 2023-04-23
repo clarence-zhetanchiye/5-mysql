@@ -1,0 +1,20 @@
+修改数据：
+UPDATE [LOW_PRIORITY] [IGNORE] table_name SET column1=v1, column2=v2, ... [WHERE...条件] [ORDER BY...排序] [LIMIT..语句];
+[FORCE INDEX([index_name])];
+
+其中：
+    LOW_PRIORITY     //该关键词仅适用于IyISAM、MEMORY、MERGE引擎的表，意思是降低当前sql的执行优先级，等到没有用户再从表读数据时才执行。
+    IGNORE           //由于通过UPDATE语句更新表中若干行数据时，若报错，则已经更新的部分也会回滚。该关键词表示即使报错也不回滚，且继续执行。
+    column1和column2 //指定要修改的数据表中的列，数据表中未指定的列就不会被当前sql修改。
+    v1和v2           //值可以是DEFAULT（前提是建表时相应的字段已申明默认值）、NULL、表达式、常量、变量。
+    WHERE...条件     //若不写，则是修改表中全部行的数据！！！ todo:注意这里!!!
+    ORDER BY...排序  //指定数据表中被修改行的修改顺序，一般无需指定，因为没什么实际意义。
+    LIMIT..语句      //表示只对 WHERE...条件 中筛选出来的若干行中的部分行数据进行修改。
+    FORCE INDEX([index_name])  //强制在update时使用索引，还可指定要使用那个索引；以避免这个update语句中用到了索引，但MySQL的优化器还
+                                 是决定全表扫描或实际用的不是自己想走的那个索引。（crud中其他语句也可以这样指定使用索引吧？？？？）
+
+
+一个特殊用法的示例：
+UPDATE table_name SET(job, sal, comm)=(SELECT job, sal, comm FROM table_name where ename='SMITH') WHERE ename='SCOTT';
+
+（完）

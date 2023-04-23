@@ -1,0 +1,61 @@
+TODO:表数据的导出就和备份数据不同，导出的表数据，模样就是一张数据表的样子。
+详见《MySQL从入门到精通》P286页开始。
+
+方式一：在CMD中执行如下mysql命令
+    mysql -u user_name -pPass_Word -e "SELECT...语句" db_name > file_name.txt;
+    //意思是从db_name库中，把执行SELECT...语句查到的若干行数据，写入file_name.txt中。
+    其中：
+    1、user_name是用户登录MySQL的用户名
+    2、Pass_Word必须和-p紧挨着写，是用户登录MySQL的密码
+    3、SELECT...语句两边的双引号必须有
+    4、db_name是数据库名。
+    5、file_name.txt是存放从数据库db_name中的某个表中，用SELECT...语句查询到的数据。
+
+    类似地，也可以
+    mysql -u user_name -pPass_Word --html -e "SELECT...语句" db_name > file_name.html;
+    //意思是从db_name库中，用SELECT...语句读取数据，并将读取到的数据写入file_name.html文件中。
+
+
+方式二：在MySQL的命令行窗口（MySQL Command Line Client）或CMD中执行下面的语句
+    SELECT ... FROM tab_name WHERE ... INTO OUTFILE 'file_name.txt' OPTION;
+    //意思是从tab_name表中读取数据，讲读取到的数据按照OPTION的设置，写入file_name.txt中。结果会在file_name.txt文件中看到
+    //若干行表中的数据。
+    其中：
+    1、前半部分就是从被导出表中读取数据的sql语句。
+    2、file_name.txt 是可以自定义命名的文件，切记收尾的单引号不能少，记得写上完整的路径。
+    3、OPTION可以是（注意，如果写多个OPTION时，多个OPTION都是FIELDS开头或LINES开头，则只需写一次FIELDS或LINES，见下面的示例）：
+        1、FIELDS TERMINATED BY 'xx'  //设置导出的每行数据中，每个字段值之间的分隔符，默认是\t，即一个制表符；
+        2、FIELDS OPTIONALLY ENCLOSED BY 'xx' //设置导出的每行数据中，类型问char、varchar、text的字段的值，用什么字符包起来，
+                                                默认是不使用什么字符包起来，一般将xx处设为\"  也就是用双引号将字符串包起来。
+        3、FIELDS ENCLOSED BY 'xx' //一般不用管。
+        4、FIELDS ESCAPED BY 'xx'  //一般不用管。设置转义字符，默认值为\ 即xx为\
+        5、LINES STARTING BY 'xx'  //一般不用管。设置导出的每行数据，行首是什么固定字符。
+        6、LINES TERMINATED BY 'xx' //一般不用管。设置导出的每行数据，行位的结束字符，默认是\n即换行符。
+
+    示例：
+    SELECT * FROM tab1 INTO OUTFILE 'file_name.txt' FIELDS TERMINATED BY '\,' OPTIONALLY ENCLOSED BY '\"'
+    LINES STARTING BY '\>' TERMINATED BY '\r\n';
+
+方式三、用mysqldump命令
+    mysqldump -u user_name -pPass_Word -T dir_path db_name table_name "OPTION";
+    其中：
+    1、user_name是登录MySQL时的用户名。
+    2、Pass_Word是密码，切记要和-p紧挨着。
+    3、dir_path是存放一会儿导出的若干行数据的路径，注意只是路径，不含文件名。
+    4、db_name是数据库名。
+    5、table_name是数据表名。
+    6、"OPTION"可以不写，写的话则必须有双引号。
+        OPTION可以是（以下的xx是字符串，注意无需用双引号或单引号包起来）：
+            1、--fields-terminated-by=xx           //设置导出的每行数据中，每个字段值之间的分隔符，默认是\t，即一个制表符；
+            2、--fields-enclosed-by=xx             //一般不用管。
+            3、--fields-optionally-enclosed-by=xx  //设置导出的每行数据中，类型为char、varchar、text的字段的值，用什么字符包起来，
+                                                       默认是不使用什么字符包起来，一般将xx处设为\"  也就是用双引号将字符串包起来。
+            4、--fields-escaped-by=xx              //一般不用管。设置转义字符，默认值为\ 即xx为\                                   
+            5、--lines-terminated-by=xx            //常设xx为\r\n。设置导出的每行数据，行位的结束字符，默认是\n即换行符。                               
+                                                       
+
+    示例：
+    mysqldump -u root -p111 -T D:\test "--lines-terminated-by=\r\n"
+    "--fields-terminated-by=、" "--fields-optionally-enclosed-by=""
+
+（完）

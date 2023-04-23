@@ -1,0 +1,31 @@
+以下两个例子，详见：
+详见：
+https://xiaolincoding.com/mysql/transaction/phantom.html#%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%91%E7%94%9F%E5%B9%BB%E8%AF%BB%E7%8E%B0%E8%B1%A1%E7%9A%84%E5%9C%BA%E6%99%AF
+
+
+REPEATABLE READ 隔离级别下，出现幻读的例一：
+T1 时刻：
+    事务 A 先执行简单查询 ：select * from t_test where id > 100 得到了 3 条记录。这时是「快照读语句」，即MVCC快照性上的读。
+T2 时刻：
+    事务 B 想数据表中insert插入一行 id= 200 的记录并提交；
+T3 时刻：
+    事务 A 再执行「加锁查询」 select * from t_test where id > 100 for update ，即穿透MVCC读取数据表的当前数据，就会得
+    到 4 条记录，此时也发生了幻读现象。
+
+
+    要避免这类特殊场景下发生幻读的现象的话，就是尽量在开启事务之后，马上执行 select ... for update 这类当前读的语句，因为它会对记
+录加独占型锁，从而避免其他事务插入一条新记录。
+
+
+REPEATABLE READ 隔离级别下，出现幻读的例二：
+T1 时刻：
+    事务 A 先执行简单查询 ：select * from t_test 得到了 3 条记录。这时是「快照读语句」，即MVCC快照性上的读。
+T2 时刻：
+    事务 B 往插入一个 id=4 的记录并提交；
+T3 时刻：
+    事务 A 通过简单select仍然只能看到3行数据；
+    事务 A 故意去update数据表中自己看不到的 id=4 的一行；
+    事务 A 通过简单select可以看到第4行数据，出现了幻读（当前事务是可以看到自己对数据表的实时未提交操作的）！！！；
+
+
+（完）

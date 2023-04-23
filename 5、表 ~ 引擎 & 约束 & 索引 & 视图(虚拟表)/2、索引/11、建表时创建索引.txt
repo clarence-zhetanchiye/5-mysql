@@ -1,0 +1,91 @@
+在建表时创建索引的语法为:
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL, //创建索引也可直接在相应的列后面写，例如可直接在这一行的逗号前写 KEY，可在上一行逗号前写PRIMARY KEY
+    age int,
+    [PRIMARY | UNIQUE | FULLTEXT | SPATIAL] KEY [索引名k_name] (列名f1 [(索引长度l)] [ASC | DESC], 列名f2 [ASC | DESC],···)
+)
+
+其中：
+0、[PRIMARY | UNIQUE | FULLTEXT | SPATIAL] 中括号中的，可以按需写一个，也可以不写，不写时，则创建的是普通索引；
+
+1、KEY 就可以写为INDEX，一般就使用KEY这个单词就行；
+
+2、[索引名k_name] 中括号中的 索引名k_name 是创建的这个索引的自定义名称，也可以不写，若不写则索引名和列名相同；
+
+3、(列名f1 [(索引长度l)] [ASC | DESC], 列名f2 [(索引长度l)] [ASC | DESC], ···)
+3.1、是在当前数据表tab_name中的哪个列如f1或哪些列如f1、f2列上建立索引；
+3.2、其中 [ASC | DESC] 中括号中的 ASC | DESC 是指定创建索引结构时，索引值的排序，不写则默认是升序；
+3.3、其中 [(索引长度l)] 中括号中的 (索引长度l) ，只有当它前面的列名如f1是字符串类型时才可以写，表示截取f1列每个字符串的固定长度作为索引；
+     这样做的好处是让索引结构所占的磁盘空间小一些，有利于查询语句涉及该索引时，使用该索引的过程更快捷。
+
+---------------------------------------------------------举例-----------------------------------------------------------
+--建表时创建普通索引
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    level int NOT NULL KEY,    //此处KEY就在该字段上创建了一般索引。
+)···;
+
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    address varchar(30),
+    KEY k_ck (`address` (5))   //注意这里的 (5) 是指定索引的长度，address列的长度本来是30，而创建的索引长度为5，可提高查询速度。
+)···;
+
+--建表时创建唯一索引
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    address varchar(30) UNIQUE      //此处UNIQUE 就在该字段上创建了一般索引。
+)···;
+
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    address varchar(30),            //此时该行逗号前写 UNIQUE 也没事，不会和下一行有重复而出错。
+    UNIQUE KEY k_ck (`address` ASC)
+)···;
+
+--建表时创建主键索引
+CREATE TABLE tab_name(
+    id int auto_increment PRIMARY KEY, //在这里就创建主键索引
+    usr varchar(30) NOT NULL,
+    address varchar(30),
+)···;
+
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    address varchar(30),
+    PRIMARY KEY k_ck (`id`)  //在这里才创建主键索引
+)···;
+
+--建表时创建多列索引（也称复合索引）
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    address varchar(30),
+    KEY k_ck (`id`, `address`)//注意，建立此复合索引后，查询语句可以通过这几个列查询，但若想该索引发挥作用，查询语句中必
+                                须使用上该索引的第一个列，如本例中的id。
+)···;
+
+--建表时创建全文索引
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    address varchar(30),
+    FULLTEXT KEY k_ck (`address`)
+)engine=MyISAM···; //注意这里数据表的引擎只能是MyISAM，因为只有引擎是MyISAM的表，其中的字符串类型的字段才支持全文索引。
+
+
+--建表时创建空间索引
+CREATE TABLE tab_name(
+    id int auto_increment,
+    usr varchar(30) NOT NULL,
+    address geometry NOT NULL,
+    SPATIAL KEY k_ck (`address`)
+)engine=MyISAM···; //注意这里数据表的引擎只能是MyISAM，因为只有引擎是MyISAM的表，其中的 NOT NULL 的空间类型的字段才支持空间索引。
+
+（完）

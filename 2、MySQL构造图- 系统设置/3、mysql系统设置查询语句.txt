@@ -1,0 +1,140 @@
+设置Mysql为严格模式     https://www.csdn.net/tags/MtTaYgzsNTc2MjMtYmxvZwO0O0OO0O0O.html
+
+在查询或更改MySQL中的系统变量时，要区分会话级别的和全局级别的，而且对会话级别或全局级别作更改后，重启MySQL后各个变量又会回到默认值，想要
+永久改变，需要在MySQL的my.ini（Windows系统是这个，Linux系统则是 my.conf）文件中进行修改。
+
+SHOW [SESSION | GLOBAL] VARIABLES LIKE 'xxx';       //查看变量xxx在当前会话级别的值或全局级别的值。
+
+
+================================================ MySQL引擎、版本、用户、库名===============================================
+    SHOW VARIABLES;
+    SHOW ENGINES;               //查询当前版本MySQL支持的引擎
+    SHOW VARIABLES LIKE 'storage_engine%';      //查询当前版本MySQL默认使用的存储引擎，即查询默认的表类型
+
+    SELECT VERSION();          //查询MySQL的版本
+    SELECT USER(),             //用户名
+    SELECT SYSTEM_USER()       //用户名
+    SELECT SESSION_USER()      //用户名
+    SELECT CURRENT_USER()      //用户名
+    SELECT CONNECTION_ID()     //MySQL服务器的连接数，一说是当前会话跟MySQL的连接ID。
+    SELECT DATABASE()          //当前数据库名
+    SELECT CHARSET(str)        //获取字符串str的字符集。该函数用在查询sql语句中时，str可以是数据表列名。
+    SELECT COLLATION(str)      //获取字符串str的字符排列方式。该函数用在查询sql语句中时，str可以是数据表列名。
+    示例：
+    SELECT id, `name`, COLLATION(`name`) FROM users WHERE id=1;
+    结果为：
+    +----+------+-------------------+
+    | id | name | COLLATION(`name`) |
+    +----+------+-------------------+
+    |  1 | jack | latin1_swedish_ci |
+    +----+------+-------------------+
+
+
+============================================== 客户端数、锁、事务、慢查询 ==================================================
+=============================以下信息也可以在MySQL的information_schema=库中看到=============================================
+    SHOW PROCESSLIST;           //显示有多少个客户端和MySQL连接着及连接状态，即MySQL内创建的线程数。
+    SHOW FULL PROCESSLIST;		//
+    SHOW VARIABLES LIKE 'wait_timeout'; //查询设置的MySQL与客户端之间tcp连接的空闲超时时长秒（空闲时长超过该时间MySQL会断开tcp连接）。
+    KILL CONNECTION +6;                 //手动kill掉MySQL跟客户端的tcp连接，这里的6是上述SHOW PROCESSLIST;查出来的tcp连接的id。
+    SHOW VARIABLES LIKE 'max_connections'; //查询MySQL服务支持的最大连接数。客户端与MySQL的连接和HTTP/1.0协议一样也分长连接和短连接。
+
+
+*  （客户端拨号，建立与MySQL内线程对应的连接，来和MySQL交互）
+    SHOW STATUS LIKE 'Threads_created';     //查看已被创建的线程数（以备若干客户端拨号建立连接）
+    SHOW STATUS LIKE 'slow_launch_threads';   //查看创建线程耗时过长的次数。
+    SHOW STATUS LIKE 'Threads_cached';      //查看线程缓存内的线程数量
+    SHOW STATUS LIKE 'Threads_connected';   //查看当前已被若干客户端连接的线程数
+    SHOW STATUS LIKE 'Threads_running';     //查看正在运行（即非休眠）的线程数
+    SHOW STATUS LIKE 'Thread_cache_size';   //查看线程缓存池的大小
+                                      临时修改该值：set global thread_cache_size=30;
+                                      永久修改该值：在MySQL的my.ini文件[mysqld]下增加thread_cache_size = 64
+
+    SHOW STATUS LIKE 'Uptime';        查询MySQL启动后运行的时间
+    SHOW STATUS LIKE 'Connections';   查询客户端试图连接数据库的次数
+*   SHOW STATUS LIKE 'table_locks_waited';   //查看等待表锁的次数。若该值较高，说明MySQL性能不佳，需优化查询、数据表等。
+*   SHOW STATUS LIKE 'Slow_queries';  获知慢查询的次数（即查看查询时间超过long_query_time秒的查询的个数）
+    SHOW STATUS LIKE 'Com_select';    获知查询操作的次数
+    SHOW STATUS LIKE 'Com_insert';    获知插入操作的次数
+    SHOW STATUS LIKE 'Com_delete';    获知删除操作的次数
+
+    SHOW STATUS LIKE 'Innodb_rows_read';            获知查询操作查到的数据行数
+    SHOW STATUS LIKE 'Innodb_rows_inserted';        获知插入操作插入的数据行数
+    SHOW STATUS LIKE 'Innodb_rows_updated';         获知更新操作更新的数据行数
+    SHOW STATUS LIKE 'Innodb_rows_deleted';         获知删除操作删除的数据行数
+
+
+*   SELECT * FROM information_schema.INNODB_TRX;	查看innodb的事务表INNODB_TRX，看当前有哪些事务尚在执行中。如果想手动结束某个事
+                                                    务(比如该事务一直没有commit或者rollback，导致展示的列表中trx_state一直
+                                                    是LOCK_WAIT等待锁的状态而不是RUNNING的状态)，则在展示的列表中，找到
+                                                    trx_mysql_thread_id的值（例如值为616694），然后执行 KILL 616694；
+                                                    就会发现616694这个事务线程在SHOW FULL PROCESSLIST 的列表中消失了。
+
+*   SELECT * FROM information_schema.INNODB_LOCK_WAITS;		查看当前正在执行的锁等待信息
+
+*   SELECT * FROM information_schema.INNODB_LOCKS;			查看锁信息
+
+    以上对应的mysql系统表的分析，见“mysql系统表解释图”文件中的图片。更详细的可见CSDN中收藏在sql的部分。
+
+
+======================================================================================================================
+    建立索引时，可以指定索引列的排序属性，这样sql语句中无排序时，如果查询条件使用到了索引字段，则最终展现的结果的默认排序，将会是索引的指定排
+    序（ASC或DSC）这个需要实际验证一下。
+
+=======================================================  EXPLAIN  ======================================================
+    使用 EXPLAIN （或DESCRIBE，二者是等价的）来分析一个查询语句，例如：
+*   EXPLAIN SELECT * FROM tab1 WHERE id IN (1,2,3);     分析SELECT * FROM tab1 WHERE id IN (1,2,3)这条查询语句。
+
+    分析结果会展示一个表格，表格中有如下列：
+    id列：                显示查询语句中SELECT的位置；
+    select_type列：       显示查询语句的查询类型；
+    table列：             显示查询语句针对的数据表；
+    type列：              显示连接类型；
+    possible_keys列：     显示数据表中当前查询语句可以使用的索引；
+*   keys列：              显示当前查询语句实际使用到的索引；
+*   rows列：              显示当前查询语句找到结果前，已经检验过的行数；
+*   Extra列：             显示其他信息。（Using temporary表示使用了临时表）
+
+    mysql在联表、分组、排序等sql语句时，都可能会在mysql中产生临时表，如果临时表小，则在mysql的内存中，临时表很大，则会在mysql的磁盘，这种
+    情形下会导致查询很慢。于sql语句前加上 EXPLAIN ，会展示是否形成了临时表（看展示的结果中的Extra栏，Using temporary表示使用了临时表），
+*   或者直接点击navicat查询界面的“解释”按钮。
+
+
+================================================== AUTO_INCREMENT与自增的id值 ============================================
+1、查看和设置数据库的自增属性：
+	查看自增属性：SHOW VARIABLES LIKE '%increment%';
+	修改自增初始值: ALTER TABLE tab_name AUTO_INCREMENT=10;//AUTO_INCREMENT默认的开始值是1，自增步长是1，这里就将自增初始值设为10
+    设置自增步长：SET @@auto_increment_increment=2;
+
+2、获取自增id的值：
+2.1、获取到数据表中自增id列的当前最大值，也即最末一行数据的id值
+     SELECT MAX(id) FROM tab_name;//但高并发时例如查询到MAX(id)和插入新数据期间又有其他数据插入，则此时MAX(id)就不是最大的。需锁表解决。
+
+2.2、在成功地向id自增的数据表中新增一条数据后，获取到这条数据在表中的id值
+    （若一次INSERT语句中批量新增多条数据，则只返回第一条在表中的id；若执行多条INSERT语句，则返回的是最后INSERT的那条数据在表中的id）
+     SELECT LAST_INSERT_ID();  //但新增数据sql和这里的查询LAST_INSERT_ID()语句，必须在同一个MySQL连接中进行【一般就是两条语句写得紧挨
+                               在一起，从而在和MySQL的一次交互所使用的一根连接中被先后执行，以便返回刚刚新增进表的数据在表中的id】，否则
+                               返回值是不可预料的！因为返回的id值专属于当前MySQL连接的新增数据操作，不同的MySQL连接各自向数据表新增数据
+                               时，各个MySQL连接获得各自新增的数据在表中的id值（即LAST_INSERT_ID()和MySQL连接是有对应关系的）。
+                               //返回的id值也与数据表无关，即同一个MySQL连接如果向表a插入数据后，再向表b插入数据，那么获得的是插入表b后
+                               的数据的Id值。
+
+2.3、直接通过 SELECT COUNT(*) FROM tab1; 来获得数据表中的行数，但这个行数未必和 SELECT MAX(id) FROM tab_name; 一致，
+     因为可能出现一种情况，新增了数据id自增了，但未能成功插入，id也未成功插入就被浪费掉了一次自增。
+
+3、函数LAST_INSERT_ID(expr)有入参时：
+     若给出作为到LAST_INSERT_ID()的参数expr ，则参数的值被函数返回，并作为被LAST_INSERT_ID()返回的下一个值而被记忆。
+
+
+========================================================== 事务 ========================================================
+查询MySQL当前的事务孤立级：
+    SELECT @@tx_isolation;
+
+修改MySQL当前的事务孤立级（需有super级别权限）：
+    SET GLOBAL TRANSACTION ISOLATION LEVEL xx;  //xx就是事务的孤立级，可以是上面那四个词组。
+
+
+========================================================== 高速缓存 ========================================================
+    1、检查MySQL是否开启了高速缓存：
+        SHOW VARIABLES LIKE '%query_cache%';
+
+（完）

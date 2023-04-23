@@ -1,0 +1,15 @@
+只有当嵌套的里层查询sql返回的结果是数据表中某一列的一个单独的值时，比较运算符类型的嵌套查询才适用。
+
+用法示例：
+    SELECT id, user, age FROM table_name1 WHERE age>=(SELECT num FROM table_name2 WHERE id=1);
+
+    SELECT id, user, age FROM table_name1 WHERE age BETWEEN (SELECT num FROM table_name2 WHERE
+    id=1) AND (SELECT num FROM table_name2 WHERE id=2);
+
+    IN比较运算符的嵌套查询，IN(...)的小括号里的嵌套查询只能是返回数据表中某一列的一个或多个值。
+    用法示例：
+        SELECT * FROM table_name1 WHERE user IN(SELECT user FROM table_name2 WHERE id<3);
+
+        SELECT * FROM table_name1 WHERE user NOT IN(SELECT user FROM table_name2 WHERE id>=3);
+
+（完）

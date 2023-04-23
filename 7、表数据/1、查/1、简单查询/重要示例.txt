@@ -1,0 +1,25 @@
+示例1、
+    SELECT * FROM tab_name;     //TODO:注意，实际生产中一般不要出现查 * 所有字段，这样查一些不需要的字段，会拖慢速度。
+
+示例2、
+    SELECT id, user, age FROM tab_name;
+
+示例3、
+    SELECT id, CAST(`id` AS varchar) FROM tab_name WHERE id=123456789012; //返回123456789012、'123456789012'
+    //CAST函数能够改变MySQL中某一变量的数据类型。
+
+示例4、
+/*					operator表
++----+-------+------+-------+
+| id | money | rate | note  |
++----+-------+------+-------+
+|  1 |   100 |  0.5 | hi    |
+|  2 |   200 |    1 | hello |
+|  3 |   300 |  1.5 | hey   |
++----+-------+------+-------+
+*/
+  SELECT money * 9 AS multiple, note + '-end' AS str, CONCAT(note, '-end') AS plus_str FROM `operator` WHERE id=1;
+  //其他都成功，但note+'-end'不成功因为MySQL中字符串不能用加号相连，想实现该效果需使用CONCAT函数。
+
+
+（完）

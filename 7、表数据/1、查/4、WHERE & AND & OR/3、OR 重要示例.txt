@@ -1,0 +1,6 @@
+OR是逻辑运算符，用在查询sql中时和WHERE是平级的，即相当于也是一个WHERE条件。
+
+示例：
+    SELECT * FROM table_name WHERE column1='xx' OR column2='xxx' OR column3='yyy';    //多个OR条件继续写就行。
+
+（完）

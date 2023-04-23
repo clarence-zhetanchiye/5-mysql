@@ -1,0 +1,6 @@
+在向数据表执行 INSERT 操作前，如果已经对该表创建了 INSERT 的 BEFORE触发器，执行 INSERT 语句的一瞬间之前就会自动触发BEFORE触发器；
+在向数据表执行 INSERT 操作后，如果已经对该表创建了 INSERT 的 AFTER触发器，执行 INSERT 语句后就会自动触发BEFORE触发器；
+
+与INSERT同理，UPDATE 和 DELETE 也是这样。
+
+（完）

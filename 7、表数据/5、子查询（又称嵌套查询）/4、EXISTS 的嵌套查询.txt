@@ -1,0 +1,55 @@
+EXISTS类型的嵌套查询，被嵌套的内层查询sql被执行后：如果查到了数据，则经过EXISTS处理后得到true值，外层查询sql继续执行；如果没查到
+数据，则经过EXISTS处理后得到false值，外层查询sql不执行或查询不到任何数据。
+
+用法示例：
+EXISTS
+            SELECT * FROM table_name1 WHERE EXISTS(SELECT id FROM table_name2 WHERE user='xx');
+            //意思是：如果table_name2中存在user='xx'的数据，则执行从table_name1查询；否则不执行从从table_name1查询。
+
+NOT EXISTS
+            SELECT * FROM table_name1 WHERE NOT EXISTS(SELECT id FROM table_name2 WHERE user='xx');
+            //意思是：如果table_name2中不存在user='xx'的数据，则执行从table_name1查询；否则不执行从从table_name1查询。
+
+AND EXISTS
+            SELECT * FROM table_name1 WHERE age>18 AND EXISTS(SELECT id FROM table_name2 WHERE user='xx');
+            //意思是：如果table_name2中存在user='xx'的数据，则执行从table_name1查询；否则不执行从从table_name1查询。
+
+OR EXISTS
+            SELECT * FROM table_name1 WHERE age=18 OR EXISTS(SELECT id FROM table_name2 WHERE user='xx');
+            //意思是：？？？
+
+    SELECT * FROM table_name1 WHERE EXISTS(SELECT id FROM tab_3) OR EXISTS(SELECT id FROM table_name2 WHERE user='xx');
+    //意思是：如果table_name2中存在user='xx'的数据 或 tab_3中存在数据，则执行从table_name1查询；否则不执行从从table_name1查询。
+
+
+经典示例：
+
+对于联表查询，当只需要返回其中一个表A的数据，而另一个表B需要被筛选，来决定表A中的哪些数据被筛选出来时，可以不采用JOIN联表查询，
+而采用EXISTS子句。联表查询会让Mysql产生临时表，而临时表一旦超过Mysql的内存，则会放置到磁盘中，这将影响速度。举例如下：
+
+SELECT * FROM t_info WHERE panel=4 AND EXISTS (SELECT * FROM t_file where t_file.info_id=t_info.id AND t_file.status=5)
+
+t_info是母表，t_file是子表，t_info表的一条数据与t_file表的若干条数据对应。以上这条sql语句的意思是：查出 panel=4 的若干条info，
+但是每条info被查出来的前提是，与该条info关联的若干file【故EXISTS括号中的t_file.info_id = t_info.id是关键】，能够在 EXISTS的
+查询中，至少被查出一条file【*可以写为某个或若干个t_file表的列名】。
+
+对应的gorm语句是
+orm := dao.DB.Debug().Table("t_info")
+if body.Id != "" {
+orm = orm.Where("t_resource_info.id = ?",body. id)
+}
+orm = orm.Select(“id, desc, ···, batch”)
+
+if body.PanelGroup == consts.VideoGroupType {
+subQ := dao.DB. //注意这里要重新用一次dao.DB，而不能复用orm。
+Table("t_file").Select("id").
+Where("t_file.info_id=t_info.id AND status = ?",body.PanelGroup).SubQuery()  //最后的这个SubQuery()就是形成sql子句。
+}
+
+orm = orm.Where("EXISTS (?)", subQ)
+
+orm.Limit(body.PageSize).Offset(body.PageSize * (body.Page - 1)).Order("t_info.update_time desc").Find(&infos)
+
+最终infos里就是查询出来的结果。
+
+（完）

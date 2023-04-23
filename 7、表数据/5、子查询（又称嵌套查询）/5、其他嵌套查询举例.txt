@@ -1,0 +1,55 @@
+示例一、
+
+    SELECT id, `name`, SQRT((SELECT `age` FROM users WHERE id=1)) FROM softs WHERE id=1;
+    结果为：
+    +----+--------+--------------------------------------------+
+    | id | name   | SQRT((SELECT `age` FROM users WHERE id=1)) |
+    +----+--------+--------------------------------------------+
+    |  1 | tiger1 |                         3.4641016151377544 |
+    +----+--------+--------------------------------------------+
+
+
+
+示例二、（详见6、MySQL函数式编程 & 函数/2、函数（MySQL内置的）/5、CASE函数.txt）
+
+CASE函数的第二种语法：
+    CASE expr WHEN e1 THEN v1      //expr常是数据表列名、一个值、查询sql查货的值；e1、v1一般是值，也可以是查询sql查获的值。
+    WHEN e2 THEN v2
+    ELSE v3
+    END
+    说明：从CASE到END一整个是CASE函数。若expr的值为e1，则返回v1；若expr的值为e2，则返回v2；各个WHEN都不成立，则返回v3.
+
+    示例1：
+    前情数据                operator表
+    +----+-------+------+-------+
+    | id | money | rate | note  |
+    +----+-------+------+-------+
+    |  1 |   100 |  0.5 | hi    |
+    |  2 |   200 |    1 | hello |
+    |  3 |   300 |  1.5 | hey   |
+    +----+-------+------+-------+
+
+
+    示例2：
+    SELECT id,`name`, CASE (select `name` from users where id=8) WHEN 'ck' THEN 'me' ELSE 'other' END AS notion
+    FROM users WHERE id IN(8,9);
+    结果为：
+    +----+------+--------+
+    | id | name | notion |
+    +----+------+--------+
+    |  8 | ck   | me     |
+    |  9 | plus | me     |
+    +----+------+--------+
+
+    示例3：
+    SELECT id,`name`, CASE 'ck' WHEN (select `name` from users where id=8) THEN 'me' ELSE 'other' END AS notion
+    FROM users WHERE id IN(8,9);
+    结果为：
+    +----+------+--------+
+    | id | name | notion |
+    +----+------+--------+
+    |  8 | ck   | me     |
+    |  9 | plus | me     |
+    +----+------+--------+
+
+（完）

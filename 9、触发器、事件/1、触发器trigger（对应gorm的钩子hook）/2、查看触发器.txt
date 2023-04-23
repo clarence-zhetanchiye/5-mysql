@@ -1,0 +1,8 @@
+用户创建的所有触发器，都保存在MySQL系统内置的 information_schema库中的TRIGGERS表里。
+
+查看触发器：
+    SHOW TRIGGERS;
+    或
+    SELECT * FROM information_schema.TRIGGERS WHERE TRIGGER_NAME = '触发器名称';
+
+（完）

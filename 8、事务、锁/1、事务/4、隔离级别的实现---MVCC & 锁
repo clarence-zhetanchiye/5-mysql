@@ -1,0 +1,74 @@
+====================================================== MVCC 对于实现事务隔离级别的作用 ======================================
+四个隔离级别的实现原理如下：
+
+读未提交（READ UNCOMMITTED）：实现原理是，实时读取数据表中的最新数据即可，尽管会出现脏读。
+读提交（READ COMMITTED）：MVCC（但本隔离级别是在事务中的每个sql执行前，都创建一个新的READ-VIEW事务团体快照）
+可重读（REPEATABLE READ）：MVCC（但本隔离级别是在事务开始时就创建一个READ-VIEW，且整个事务结束前只使用这一个READ-VIEW事务团体快照，
+                              保证了在事务执行期间简单select语句读到的数据表的数据，都是事务启动那一瞬间数据表中的数据）
+序列化读（SERIALIZABLE）：实现原理是，通过对数据表加上共享锁独占锁，来避免多个事务并发执行的。
+
+    MVCC，即版本并发控制，是对多事务并发执行时实现 READ COMMITTED、REPEATABLE READ 这两个隔离级别的原理。
+    它借助当前事务创建的 “READ-VIEW快照”（当前活跃事务的团体快照）、原本就有的“数据表的两个隐藏列“（对一行进行更改的肇事者事务的ID和指向更改
+前版本的指针 redo log）来发挥作用。
+    todo 数据库中在创建事务时，每个事务会给定一个事务id，按照事务创建的先后顺序，会递增地提供id值。但id值大的事务可能先完成并提交，id值小
+         的事务也可能后完成提交！
+
+当前事务创建的READ-VIEW快照记录了-----
+1、m_ids ：          创建当前 Read View 的一瞬间，当前数据库中「活跃事务」（指已启动未提交正在执行的事务）的事务 id 组成的团体。
+2、min_trx_id ：     m_ids 的最小值
+3、creator_trx_id：  todo 记录的是创建当前 READ-VIEW快照 的事务的id；
+4、max_trx_id ：     后续若再创建新事务，这个就是被创建出来的事务的id
+就像这样
+todo  已提交事务··【 活跃事务min_trx_id、creator_trx_id、·· <==> 活跃事务m_ids 】未创建事务max_trx_id
+
+两个隐藏列记录了-----
+1、doer_trx_id：肇事者事务的ID，表示这一行数据的现状，是这个事务造成的。
+2、roller_ptr：指针，指向这一行数据被更改前的原始的那一行数据。
+在数据表中就像这样
+todo:
+ id          name        number          doer_trx_id         roller_ptr
+ 1           jack        100                 50                 01xx
+
+
+MVCC发挥作用的原理过程：
+    当前事务访问数据表时，除了自己对数据表的更新自己通过简单select就可见，对于别的事务对数据表的更改，当前事务通过简单select是否可以看到，
+由MVCC决定，有如下情况：
+1、若被访问的一行数据的 doer_trx_id < min_trx_id ，由于该doer_trx_id必定是启动过的事务的id，否则也不会在表
+   中doer_trx_id列留下id，而它又小于min_trx_id 即不在m_ids中，即不活跃了，则 doer_trx_id 必定是READ-VIEW
+   快照创建前已提交的事务。对这一行数据的更改已提交，此时MVCC「允许」当前事务看到这一行数据当前的模样。
+2、若 max_trx_id < doer_trx_id  ， 则表明当前事务创建快照以后的当前事务执行过程中，有一个后来被创建的事务启动且
+   执行更改了该行数据并提交完成，之所以肯定提交完成了是因为这个doer_trx_id > max_trx_id，不在m_ids中故显然是不
+   活跃了，即提交过了。此时MVCC「不允许」让当前事务看到这一行数据当前的模样，而是仍去看到roller_ptr 指向的之前的模样，
+   例如id为1，name是jack，但number是0
+3、若 min_trx_id < doer_trx_id < max_trx_id ，
+   3.1、如果 doer_trx_id 在 m_ids 即活跃事务中，即表明 doer_trx_id 对该行数据的修改还未提交。此时MVCC「不允许」
+        当前事务看到这一行数据的当前模样，而是仍去看到roller_ptr 指向的之前的模样，例如id为1，name是jack，但
+        number是0
+   3.2、如果 doer_trx_id 不在 m_ids 即活跃事务中，即表明它是一个事务id比较大即一个后启动，但先完成并提交了的事务。
+        此时MVCC「允许」 当前事务看到这一行数据当前的模样。
+todo 总的来说：
+    如果 doer_trx_id 不在 m_ids 中，此时MVCC「允许」当前事务看到这一行数据当前的模样。但若是后来却先完成提交的doer_trx_id，则「不允许」
+    如果 doer_trx_id 在 m_ids 中，则 MVCC「不允许」当前事务看到这一行数据的当前模样，而是仍去看到roller_ptr 指向的之前的之前版本的数据。
+
+可重读的具体实现过程，可详见 https://xiaolincoding.com/mysql/transaction/mvcc.html#read-view-%E5%9C%A8-mvcc-%E9%87%8C%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84
+
+====================================================== 锁 对于实现事务隔离级别的作用 ===========================================
+    但是，MVCC只能在面对简单select查询时，能够实现事务之间 REPEATABLE READ 的隔离级别。
+    而对于 select...for update、select...lock in share mode 这种直接穿透MVCC的快照性，直接对数据表的当前数据进行读的时候，如果数据
+表又被 insert、update、delete 这种能直接穿透MVCC的快照性对数据表的当前数据进行操作的sql操作了，那么这种情况下MVCC对于事务之间的 REPEATABLE
+READ 的隔离级别的实现显然已经无能为力。
+    不过，MySQL让 select...for update、select...lock in share mode、 insert、update、delete 这些能够穿透MVCC快照性的crud语句，
+在穿透MVCC快照性的同时，也自动给要操作的区域加上了共享型锁或独占型锁；
+    这样，不同事务内的这些能穿透MVCC快照性的crud语句，在穿透MVCC快照性直接操作数据表中的当前数据时，共享型锁、独占型锁的兼容规则以及事务提交
+后锁才被释放的规则，确保了事务之间无法干扰对方对数据的操作结果，也即仍然能够实现事务间的 REPEATABLE READ 的隔离级别（并尽量实现避免幻读）。
+    锁的具体情形，请看关于锁的文件夹内的笔记。
+
+
+    （对于InnoDB引擎：                                                                            ）
+    （   在READ COMMITTED（读已提交）隔离级别下，行级锁的种类只有行锁 RECORD LOCK（如果连行锁也没有，则如果事务a、b先后操作同一行数据后
+         事务b回滚，事务a会遇到脏读） ）
+    （  在REPEATABLE READ（可重复读）隔离级别下，行级锁的种类除了有行锁（实现事务间的可重读隔离级别），还有间隙锁（目的是为了尽量避免幻读）       ）
+
+
+
+（完）

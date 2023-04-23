@@ -1,0 +1,7 @@
+查看存储函数的状态的语法：
+SHOW FUNCTION STATUS LIKE 'pattern';  //其中的pattern是类似于 %.. 的模糊匹配
+
+查看存储函数的详细定义的语法：
+SHOW CREATE FUNCTION fc_name;      //fc_name是存储函数的名称
+
+（完）

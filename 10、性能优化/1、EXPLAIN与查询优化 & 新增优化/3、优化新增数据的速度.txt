@@ -1,0 +1,22 @@
+向数据表中新增数据时，数据表中的索引、UNIQUE校验都会拖慢插入数据的速度，
+且多条数据一次一条地插入数据表会明显慢于一次批量插入多条数据（因为增加了和MySQL通信的次数）。
+
+一、批量插入或批量导入数据
+1、批量插入数据：
+    INSERT INTO tab_1 VALUES(v1,v2,v3...),(v11,v22,v33...),(v111,v222,v333),...;
+
+2、批量导入数据：（适用于从文件导入数据到表中，比1.1的方式更快）
+    LOAD DATA [LOW_PRIORITY | CONCURRENT] [LOCAL] INFILE file_name INTO TABLE table_name [OPTION选项];
+
+二、插入数据前禁用索引与UNIQUE检查
+1、插入数据前禁用索引，数据插入完后开启索引:
+    禁用索引：ALTER TABLE tab_name DISABLE KEYS;
+    启用索引：ALTER TABLE tab_name ENABLE KEYS;
+
+2、插入数据前禁用UNIQUE唯一性检查，插入数据完毕后开启UNIQUE唯一性检查：
+    禁用UNIQUE检查：SET UNIQUE_CHECKS=0;
+    启用UNIQUE检查：SET UNIQUE_CHECKS=1;
+3、todo:-----------------------------向已有数据的表中新增索引，MySQL会自动将表中的数据维护到索引中，从而新增的索引会生效！
+
+
+（完）

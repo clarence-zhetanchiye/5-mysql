@@ -1,0 +1,47 @@
+sql语句中可以夹杂地使用上聚合函数。详细的参见《MySQL从入门到精通》P144 ~ P147
+
+todo:注意：聚合函数只对入参所代表的一组数据中的非null值进行聚合计算，值为null的不参与聚合（COUNT(*)除外），聚合函数的计算结果是一个值。
+
+
+1、COUNT(expr) 函数。（expr可以是 *、1、一个数据表列名column。）
+    在查询的sql语句中如果使用的是下面的情形：
+    1.1、COUNT(*)，则返回的是数据表中全部行数。注意，当含有该COUNT(*)的查询sql中不含WHERE子句，则COUNT(*)是经过MySQL优化的，速度很快。
+    1.2、COUNT(列名column)，则返回的是数据表中column列中，值为非null的行数。
+    * 、expr是一个值，例如字符串、数字、日期时间，则返回的是1
+
+    使用示例：
+    SELECT COUNT(*) FROM tab1;  //查询tab1表中一共有多少行数据。
+
+
+2、SUM(expr) 函数。（expr可以是 一个数据表列名column）
+    2.1、SUM(列名column)，则返回数据表中column列中非null的所有值的总和。
+    * 、expr是一个数字时，则返回该数字，是一个字符串时，则返回零。
+
+    使用示例：
+    SELECT SUM(列名column) FROM tab1 WHERE id BETWEEN 1 AND 10;
+
+
+3、AVG(expr) 函数。（expr可以是 一个数据表列名column）
+    3.1、AVG(列名column)，则返回数据表中column列中非null的所有值的均值。
+    * 、expr是一个数字时，则返回该数字，是一个字符串时，则返回零。
+
+    使用示例：
+    SELECT AVG(列名column) FROM tab1 WHERE id BETWEEN 1 AND 10;
+
+
+4、MAX(expr) 函数。（expr可以是 一个数据表列名column）
+    4.1、MAX(列名column)，则返回数据表中column列中非null的所有值中最大的值。
+    * 、expr是一个数字时，则返回该数字，是一个字符串时，则返回该字符串。
+
+    使用示例：
+    SELECT MAX(列名column) FROM tab1 WHERE id BETWEEN 1 AND 10;
+
+
+5、MIN(expr) 函数。（expr可以是 一个数据表列名column）
+    5.1、MIN(列名column)，则返回数据表中column列中非null的所有值中最小的值。
+    * 、expr是一个数字时，则返回该数字，是一个字符串时，则返回该字符串。
+
+    使用示例：
+    SELECT MIN(列名column) FROM tab1 WHERE id BETWEEN 1 AND 10;
+
+（完）

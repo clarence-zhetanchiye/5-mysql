@@ -1,0 +1,9 @@
+下载了MySQL数据库、依赖包github.com/go-sql-driver/mysql和软件MySQLyong。
+
+1、MySQLyong 是连接并操作MySQL的可视化软件（可知其源码和下述依赖包的功能是一样的）
+2、github.com/go-sql-driver/mysql依赖包（即驱动mysql的）是真正直接跟MySQL建立tcp连接的。
+   (而标准库的database/sql包是能够接受多种SQL类型数据库驱动（所谓驱动，比如上述依赖包）)的泛操作数据
+   库接口，能够借助不同SQL类型数据库的驱动，操作相应的不同数据库。
+
+
+（完）

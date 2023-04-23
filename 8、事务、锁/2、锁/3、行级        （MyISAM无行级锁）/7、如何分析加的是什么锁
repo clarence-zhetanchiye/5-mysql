@@ -1,0 +1,14 @@
+select * from performance_schema.data_locks;
+
+展现的数据中，主要看这几个值：
+INDEX_NAME ： 该锁加在什么索引上。（是的，行级锁本质上是加在索引上的，而不是数据表中的一整行上。）
+LOCK_DATA ： 该锁锁定的右边界，锁定的范围是否包含该边界那一行数据，要看具体是什么锁。
+LOCK_STATUS ： 该锁是否已经成功拿到，GRANTED表示成功拿到了。
+LOCK_TYPE ：表示加的锁是全局锁还是表级锁还是行级锁，TABLE表示是表级锁，RECORD表示是行级锁。
+LOCK_MODE ：表示加的具体是什么锁。
+            对于LOCK_TYPE 是行级锁的，
+            如果 LOCK_MODE 只是 X，说明是临键锁（因为加行级锁的时候都是加上 Next-Key Lock 临键锁，再视情况是否退化成行锁或间隙锁）；
+            如果 LOCK_MODE 为 X,REC_NOT_GAP，说明是行锁；
+            如果 LOCK_MODE 为 X,GAP，说明是间隙锁；
+
+（完）

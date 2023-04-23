@@ -1,0 +1,12 @@
+MySQL中自带了包括但不限于如下这些系统数据库：
+    information_schema  内有多张数据表，记录了一些系统信息
+    performance_schema  内有多张数据表，记录了MySQL的一些性能参数
+    mysql               内有多张数据表，记录了用户、时区、MySQL关键词、slow_log慢查询日志。
+    sakila              样例数据库。（该库不是所有版本的MySQL都有）
+    test
+    world               包括3张数据表，记录了城市、国家、语言等信息
+    ···
+
+不要更改系统自带的上述数据库！！！
+
+（完）

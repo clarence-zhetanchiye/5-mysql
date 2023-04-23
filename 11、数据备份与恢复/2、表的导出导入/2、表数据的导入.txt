@@ -1,0 +1,27 @@
+TODO:就是将 4、表数据的导出.txt 中所示方法导出的若干行数据，导入到数据库的表中。
+
+方式一、用LOAD DATA语句，就在登录了MySQL的CMD上写如下命令 （todo:这个LOAD DATA 语句的速度比批量插入的速度更快！）
+    LOAD DATA [LOW_PRIORITY | CONCURRENT] [LOCAL] INFILE file_name INTO TABLE table_name [OPTION];
+    其中：
+    1、若写 LOW_PRIORITY 则整个语句会等到没有其他用户操作表时才执行；
+    2、若写 CONCURRENT 则该语句执行时，其他线程也可以同时操作该表；
+    3、当需要导入的若干行数据在本地，则需写 LOCAL ，这样才能将本地的需要导入MySQL的数据库的数据表中若干行数据，发送给MySQL；
+    4、file_name是需要导入的若干数据所在文件的路径文件名；
+    5、table_name是表名；
+    6、OPTION的值可以是（前面六个对应的就是 4、表数据的导出/方式二）：
+        1、FIELDS TERMINATED BY 'xx'
+        2、FIELDS OPTIONALLY ENCLOSED BY 'xx'
+        3、FIELDS ENCLOSED BY 'xx'
+        4、FIELDS ESCAPED BY 'xx'
+        5、LINES STARTING BY 'xx'
+        6、LINES TERMINATED BY 'xx'
+        7、IGNORE n LINES            //用于指定忽略文件的前n行记录。
+        8、(column1 column2 ...)       //根据column顺序来加载这若干行数据。
+        9、SET column=expr           //设置列的转换条件，即所指定的列经过转换后才会被加载。
+
+
+方式二、用mysqlimport命令（和方式一差不多）
+    详见《MySQL从入门到精通》P293页。
+
+
+（完）

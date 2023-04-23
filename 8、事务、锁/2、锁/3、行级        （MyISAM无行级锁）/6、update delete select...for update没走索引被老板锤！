@@ -1,0 +1,27 @@
+执行 update、delete、select ... for update 等具有加锁性质的语句，如果语句没有走索引查询（不止是加索引，还得看MySQL优化器是否让
+该sql走了索引），导致扫描是全表扫描。那么，每一行数据的索引上都会加 next-key 锁！
+        为什么呢？
+        举例说明（已验证）：
+            数据表中name这个字段未建立索引，现在事务a的一条crud语句是 select * from tab_name where name=xx for update；
+            没有索引树可以扫描，这条sql只好全表扫描寻找name=xx的那些行，期间如果事务b新增一行name=xx的、或更改某一行让name=xx、
+            或删除掉name=xx的那一行，则对事务a来说就会出现幻读，为了避免幻读，事务a中的这条sql只好对表中的每一行的索引都加锁。
+        再例说明：
+            数据表中name这个字段未建立索引，现在事务a的一条crud语句是 delete from tab_name where name=xx； 这条sql
+            只好全表扫描寻找name=xx的那些行，期间如果期间如果事务b新增一行name=xx的、或更改某一行让name=xx、或删除掉
+            name=xx的那一行，则对事务a来说就会出现幻读，为了避免幻读，事务a中的这条sql只好对表中的每一行的所有索引都加锁。
+这样就相当于锁住的全表，这时如果其他事务对该表进行增、删、改操作的时候，都会被阻塞。
+
+因此，一定要检查这些有加锁性质的语句是否走了索引！！
+
+或者，将 MySQL 里的 sql_safe_updates 参数设置为 1，开启安全更新模式，这样之后：
+    1、update 语句只有下面几种方式才能执行成功：
+            方式一：使用 where，并且 where 条件中必须有索引列；
+            方式二：使用 limit；
+            方式三：同时使用 where 和 limit，此时 where 条件中可以没有索引列。
+
+    2、delete 语句只有下面几种方式才能执行成功：
+            方式一：使用 where，并且 where 条件中必须有索引列
+            方式二：同时使用 where 和 limit，此时 where 条件中可以没有索引列
+
+
+（完）

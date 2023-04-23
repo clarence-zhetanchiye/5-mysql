@@ -1,0 +1,29 @@
+创建存储函数的语法为：
+
+DELIMITER \
+CREATE FUNCTION ft_name (param_name1 type, param_name2 type, param_name3 type) RETURNS type
+[characteristic]
+BEGIN
+...
+END\
+DELIMITER ;
+
+其中：
+1、ft_name 是当前 "存储函数" 的名称，可自定义，不区分大小写，切记不要与MySQL的系统关键词重名；
+2、param_name1，param_name2，param_name3 是存储函数的入参名称，有多个入参的，各个入参之间用逗号隔开，没有入参的，小括号内为空即可；
+3、type 是参数的数据类型，必须只能是MySQL中的数据类型，例如 int；
+4、RETURNS type 是指定出参的数据类型为type，必须只能是MySQL中的数据类型，例如 int；
+5、characteristic部分可写可不写，是说明存储函数的，相当于对这个存储过程功能的注释说明；？？？参见《MySQL从入门到精通》P242页表14.3
+6、... 是存储函数的具体内容，可以包含 变量的申明、控制语句、sql语句
+7、END\中的反斜杠，由于...中的每一行sql语句都需要用分号来表示结束，如果存储过程的语法中END后面也用分号，则冲突，因此一般需要在写创建存储函
+   数前，先更改语句结束标志符号，更改的语法为，执行 DELIMITER my_symbol;  其中的my_symbol就是想要更改为的标志符号，例如反斜杠，即
+   DELIMITER \  ，最后再执行 DELIMITER ; 变为系统默认的分号作为结束标志符号。
+
+例如：
+DELIMITER \
+CREATE FUNCTION fc_name (x INT) RETURNS varchar(50)
+BEGIN
+RETURN( SELECT name FROM my_table WHERE id=x);
+END
+\
+DELIMITER ;

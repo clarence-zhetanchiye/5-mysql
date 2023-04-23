@@ -1,0 +1,31 @@
+ALL类型的嵌套查询，ALL(...)的小括号里的嵌套查询只能是返回数据表中某一列的一个或多个值。
+
+
+ALL类型的嵌套查询的ALL前面必须是比较运算符，含义是和ALL(...)小括号内查询到列的结果集的全部值进行比较：
+
+各种情况分析：
+    SELECT s1 FROM t1 WHERE s1 > ALL(SELECT s1 FROM t2);
+    假设表t1是（10）。
+    如果表t2是（-5,0，+5），则表达式为true，因为10比t2中的查出的所有三个值大。
+    如果表t2是（12,6，null，-100），则表达式为false，因为t2中有一个值12大于10。
+    如果表t2是（0，null，1），则表达式为unknown。
+    如果表t2是空表，则结果为true。
+
+可以简单记忆为：
+    ... >= ALL(SELECT column1...)      无null非空表参与比较时等价于       ... >= (SELECT MAX(column1) ...)
+    ... >  ALL(SELECT column1...)      无null非空表参与比较时等价于       ... >  (SELECT MAX(column1) ...)
+    ... <= ALL(SELECT column1...)      无null非空表参与比较时等价于       ... <= (SELECT MIN(column1) ...)
+    ... <  ALL(SELECT column1...)      无null非空表参与比较时等价于       ... <  (SELECT MIN(column1) ...)
+    ... != ALL(SELECT column1...)      无null非空表参与比较时等价于       ... NOT IN (SELECT column1...)
+    ... =  ALL(SELECT column1...)                                     //报语法错误
+
+
+用法示例：
+    SELECT * FROM tab_a WHERE age>ALL(SELECT num FROM users);
+
+    SELECT * FROM tab_a WHERE id != ALL(SELECT id FROM users);
+
+    SELECT * FROM tab_a WHERE 1<ALL(SELECT pass_word FROM users WHERE id=1);
+
+
+（完）

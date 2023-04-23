@@ -1,0 +1,7 @@
+注意：要慎用删除表的操作，一旦删除表，表中数据也会随之被删除，且无法恢复。
+
+DROP TABLE [IF EXISTS] `t_cms_resource_info`;	//（如果存在该表）删除表。如果不加 IF EXISTS 而要删除的表不存，则执行后会报错。
+
+DROP TABLE [IF EXISTS] `tab1`, `tab2`, ··· ;    //（如果存在这些表）删除多张表。如果不加 IF EXISTS 而要删除的表不存，则执行后会报错。
+
+（完）

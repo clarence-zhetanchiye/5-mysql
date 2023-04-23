@@ -1,0 +1,8 @@
+查看存储过程的状态的语法：
+SHOW PROCEDURE STATUS LIKE 'pattern';  //其中的pattern是类似于 %.. 的模糊匹配
+
+查看存储过程的详细定义的语法：
+SHOW CREATE PROCEDURE pc_name;      //pc_name是存储过程的名称
+
+
+（完）

@@ -1,0 +1,5 @@
+删除触发器：
+    DROP TRIGGER trigger_name; //trigger_name就是在创建触发器时自定义的触发器名称。
+
+
+（完）

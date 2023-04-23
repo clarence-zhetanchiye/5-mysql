@@ -1,0 +1,28 @@
+虚拟表在实际生产中基本不怎么用，以下仅是帮助理解什么是虚拟表，更多详情见《MySQL从入门到精通》P202页。
+
+
+什么是视图？
+    视图也叫虚拟表，是定义并存储在MySQL中的一条查询sql。该sql查询了若干张表的若干字段的若干行数据，它查询到的结果集就像一张数据表一样！
+但并不是MySQL磁盘中真正存在的数据表，因此叫虚拟表，也叫视图。所以这个查询sql就相当于一张表（虚拟的），即视图。
+
+示例1、
+创建视图：
+    CREATE VIEW view_name AS SELECT id,usr,age FROM students; //view_name是虚拟表名称，可自定义，AS后面必须跟着一条查询sql。
+使用视图：
+    SELECT * FROM view_name;//这里的view_name就是上面创建的虚拟表，它里面的数据就是SELECT id,usr,age FROM students;的结果集
+
+示例2、
+创建视图：
+    CREATE VIEW view_name AS SELECT tab1.id, tab1.usr, tab1.age, tab2.score FROM tab1,tab2 WHERE tab1.id=tab2.id;
+使用视图：
+    SELECT * FROM view_name;
+
+
+为什么要使用视图？
+    虚拟表有两个用途：
+    1、安全用途：MySQL中真实的数据表中可能有权限低的用户不能看到的保密信息，这时可以创建虚拟表，虚拟表只含有真是数据表中的非保
+               密信息，让虚拟表对低权限用户开放，而真是的数据表不允许低权限用户访问。
+    2、简化用途：原本需要查询多张数据表才能满足需求，而且这种连表查询很频繁，那么现在就可以直接查询虚拟表，连表查询的工作由虚拟
+               表去完成。实际上，对虚拟表也可以进行crud操作，这种操作会自动转化为对真实的若干数据表的操作。
+
+（完）

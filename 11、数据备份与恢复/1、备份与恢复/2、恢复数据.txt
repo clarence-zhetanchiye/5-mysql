@@ -1,0 +1,11 @@
+TODO:恢复数据就是将备份数据时获得的file_name.sql文件中的建库、建表、插入数据的sql语句予以执行。
+ （由于是一行数据一条INSERT语句，故速度比导入表数据的 LOAD DATA语句 速度慢。）
+
+语法为：
+    mysql -u user_name -p [db_name] < file_name.sql;
+    其中：
+    1、db_name是指定数据库名，即回复file_name.sql中备份的某个数据库、数据库下的表及表中所有数据。
+    2、若不指定db_name，就是完全执行file_name.sql中备份的所有内容。
+    3、注意是 < 符号。
+
+（完）

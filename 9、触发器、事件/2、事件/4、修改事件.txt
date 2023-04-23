@@ -1,0 +1,14 @@
+修改事件（和创建事件的语法很类似）：
+    ALTER [DEFINER=user_name] EVENT event_name
+    ON SCHEDULE schedule_code
+    [ON COMPLETION [NOT] PRESERVE]                      //默认为 ON COMPLETION NOT PRESERVE ，即默认事件仅执行一次。
+    [RENAME TO event_new_name]                          //将事件名改为新的名称 event_new_name
+    [ENABLE | DISABLE | DISABLE ON SLAVE]               //默认为 ENABLE
+    [COMMENT 'comment_note']
+    DO event_code;
+
+
+关闭某事件：
+    ALTER EVENT event_name DISABLE;
+
+（完）

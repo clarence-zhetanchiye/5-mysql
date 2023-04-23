@@ -1,0 +1,79 @@
+和其他编程语言一样，MySQL也有变量的申明、赋值和作用范围。
+MySQL的变量主要在定义存储过程时使用！！！！！！！！！
+
+1、局部变量的申明
+    DECLARE x, y, z type [DEFAULT v];
+    其中：
+    1、 x, y, z 是数据类型相同的几个变量。一个变量申明语句可以一次性申明多个变量，但这些变量的数据类型必须相同。
+    2、type是数据类型，必须是MySQL中的数据类型。
+    3、DEFAULT v 可以不写，若不写则申明的变量的值是null；v 是给变量设定的默认值；
+
+2、局部变量的赋值
+    SET x=v1, y=v2, z=v3;
+    其中：
+    1、一个变量赋值语句可以一次性给多个变量赋值。x,y,z是几个不同的变量，v1,v2,v3都是值。
+    2、在定义的存储过程的 BEGIN ... END 之间，还可以用这样的语句（这样的语句也只能用在存储过程中）为变量赋值：
+        SELECT column_name INTO y FROM tab_name WHERE id=1;
+        SELECT COUNT(*) INTO y FROM tab_name WHERE id=1;
+
+【展示局部变量的作用范围】
+    上述1、2那样申明、赋值的变量是局部变量，即只在定义的存储过程内的BEGIN...END之间有效，示例如下：
+
+    定义一个名为pc_ck的存储过程
+    DELIMITER \
+    CREATE PROCEDURE pc_ck()
+    BEGIN
+    DECLARE x char(10) DEFAULT 'outer';
+    BEGIN
+    DECLARE x char(10) DEFAULT 'inner';
+    SELECT x;                               //这里的x是第二个BEGIN和第一个END之间的x，值为inner
+    END;
+    SELECT x;                               //这里的x是第一个BEGIN和第二个END之间的x，值为outer
+    END
+    \
+    DELIMITER ;
+
+    然后调用该存储过程
+    CALL pc_ck();
+
+    在终端按序输出了
+    inner outer
+
+    由此可见存储过程中的两个x虽然同名，但作用域不同，彼此并不冲突
+
+
+3、会话变量的申明赋值（会话变量可以理解为一个存储过程中的全局变量）
+   注意：存储过程中的会话变量无需先申明，可以直接赋值使用，会话变量必须有前缀@符，包含@符一起是一个会话变量！
+
+   SET @x=v;
+
+   其中：
+   1、@x就是会话变量。
+   2、v是给会话变量赋的值。
+
+
+【展示全局变量的作用范围】
+    上述3那样使用的会话变量，在定义的整个存储过程中都有效，示例如下：
+
+    DELIMITER \
+    CREATE PROCEDURE pc_ck()
+    BEGIN
+    SET @t=1;
+    BEGIN
+    SET @t=2;
+    SELECT @t;
+    END;
+    SELECT @t;
+    END
+    \
+    DELIMITER ;
+
+    然后调用该存储过程
+    CALL pc_ck();
+
+    在终端按序输出了
+    2    2
+
+    由此可见存储过程中的两个@t在整个存储过程中，都是同一个@t，且在两个BEGIN...END中被更改赋值。
+
+（完）

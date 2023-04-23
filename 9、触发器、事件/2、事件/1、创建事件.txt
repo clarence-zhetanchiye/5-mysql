@@ -1,0 +1,32 @@
+创建事件：
+    CREATE [DEFINER=user_name] EVENT [IF NOT EXISTS] event_name
+    ON SCHEDULE schedule_code
+    [ON COMPLETION [NOT] PRESERVE]                      //默认为 ON COMPLETION NOT PRESERVE ，即默认事件仅执行一次。
+    [ENABLE | DISABLE | DISABLE ON SLAVE]               //默认为 ENABLE
+    [COMMENT 'comment_note']
+    DO event_code;
+
+
+    说明：
+     1、user_name                 //用户。若是当前用户，也可以写为CURRENT_USER
+     2、event_name                //事件名。
+ |---3、schedule_code             //事件执行的开始时间和周期间隔。
+ |   4、ON COMPLETION PRESERVE    //用于指定事件是周期性地执行的，默认是 ON COMPLETION NOT PRESERVE ，即该事件仅执行一次。
+ |   5、ENABLE                    //事件创建完成后立即投入使用，即立即开始监控时间，时间一到事件就会执行。
+ |   6、DISABLE                   //事件创建完成后不是立即投入使用，而是被保存起来。
+ |   7、DISABLE ON SLAVE          //表示事件在MySQL集群中的SLAVE机器里是不投入使用的。
+ |   8、comment_note              //对事件的注释说明
+ |   9、event_code                //事件执行的逻辑功能，可以是sql、调用存储过程、事件，如果有多条语句，则需写在BEGIN...END结构中
+ |
+ |
+schedule_code的通常有二种情形:
+     AT time_stamp [+ INTERVAL time_interval]
+     或
+     EVERY time_interval [STARTS time_stamp [+INTERVAL time_interval]] [ENDS time_stamp [+INTERVAL time_interval]]
+
+     说明：
+     1、time_stamp           //一个具体时间点，例如 '2022-12-12 12:12:12' 。
+     2、time_interval        //表示时长，由 数字或单引号包数字+时间单位 构成，时间单位有 YEAR、QUARTER、MONTH、DAY、HOUR、MINUTE、
+                               WEEK、SECOND、YEAR_MONTH、DAY_HOUR、DAY_MINUTE、DAY_SECOND、HOUR_MINUTE、HOUR_SECOND、
+                               MINUTE_SECOND   例如： 4 WEEK   又例如： '1:10' HOUR_MINUTE
+     3、上述的time_stamp和time_interval当然也可以替换为使用时间函数。

@@ -1,0 +1,7 @@
+删除一个并不存在的列不会报错：
+
+	DELETE FROM tab_d WHERE id = 999;
+	【实际上表中id还远未到999，即还没有这样一条数据。WHERE条件如name="no"这样不存在的一行数据，情形是一样的】
+    结果为： Affected rows: 0
+    【即并不会报错】
+

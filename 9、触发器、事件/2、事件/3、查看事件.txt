@@ -1,0 +1,22 @@
+查看事件：
+
+查看事件调度器是否开启：
+    SHOW VARIABLES LIKE 'event_scheduler';
+    或
+    SELECT @@event_scheduler;
+
+开启或关闭事件调度器：
+    SET GLOBAL event_scheduler = ON;
+    SET GLOBAL event_scheduler = OFF;
+
+永久开启事件调度器：
+    如果想要避免重启MySQL后事件调度器又回到默认的关闭状态，可以在MySQL的配置文件 my.ini （Windows时是这样，Linux中则是my.cnf） 中
+    找到[mysqlId] 添加 event_scheduler = on  ，再重启MySQL即可。
+
+
+
+查看事件详情：
+    SHOW PROCESSLIST; //事件由特定线程来管理，因此启用事件调度器、拥有SUPER权限的账户就可以用此命令查看到事件的信息。
+
+
+（完）

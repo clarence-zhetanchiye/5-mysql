@@ -1,0 +1,40 @@
+--修改表名：
+    RENAME TABLE oldTab TO newTab;                          将表oldTab的表名改为newTab。
+    RENAME TABLE oldTab1, oldTab2 TO newTab1, newTab2;      将表oldTab1、oldTab2的表名分别改为newTab1、newTab2。
+
+------------------------------------------------------------------------------------------------------------------------
+todo:注意：使用ALTER开头的sql语句修改表结构时，可能导致数据表中的数据全部丢失！！！
+
+--修改表名
+    ALTER TABLE oldTab RENAME AS newTab;                    将表oldTab的表名改为newTab。
+
+--修改表结构中的列：
+    1、新增一列：
+        ALTER TABLE oldTab ADD `address` VARCHAR(32) NOT NULL COMMENT '地址' [FIRST `id` | AFTER `id`];
+                                                 给oldTab表新增address这一列（同时指定该列位于表中某列（本例是id）的前面或后面）
+    2、修改某列的定义：
+        ALTER TABLE oldTab MODIFY `email` VARCHAR(32) NOT NULL COMMENT '邮箱';                修改oldTab表中的email列的定义。
+    3、修改列名乃至列定义：
+        ALTER TABLE oldTab CHANGE COLUMN `addr` `address` VARCHAR(32) NOT NULL;              更改addr列名为address及其定义。
+    4、删除列
+        ALTER TABLE oldTab DROP `email`;  删除oldTab列中的email列。
+
+--修改表结构的其他属性：
+    1、增加或删除主键
+        ALTER TABLE oldTab ADD PRIMARY KEY (列名);                                 增加一个主键。
+        ALTER TABLE oldTab DROP PRIMARY KEY;                                      删除一个主键。
+    2、增加索引
+        ALTER TABLE oldTab ADD INDEX 自定义索引名 (`列1`);                        增加一个索引。
+        ALTER TABLE oldTab ADD INDEX 自定义索引名 (`列1`,`列2`, ···);              增加一个联合索引。
+    3、增加唯一索引
+        ALTER TABLE oldTab ADD UNIQUE [自定义索引名] (`列1`);                       增加一个唯一索引。（索引可起名，也可不起名）
+    4、删除索引
+        ALTER TABLE oldTab DROP INDEX 索引名;
+
+
+另外：
+    ALTER 开头的sql语句，可以将多个ALTER语句合并成一条ALTER语句，合并的方式是共用开头的 ALTER TABLE oldTab，不同的部分之间用逗号隔开，
+    例如：
+    ALTER TABLE oldTab ADD PRIMARY KEY (列名) , ADD `email` VARCHAR(32) NOT NULL , DROP INDEX 索引名;
+
+（完）

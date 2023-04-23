@@ -1,0 +1,5 @@
+删除事件：
+    DROP EVENT [IF EXISTS] event_name;
+
+
+（完）

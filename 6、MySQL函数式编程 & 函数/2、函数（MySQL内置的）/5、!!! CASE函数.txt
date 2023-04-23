@@ -1,0 +1,95 @@
+sql语句中可以夹杂地使用上CASE函数。  参见《MySQL从入门到精通》P178页表10.5
+
+1.1、CASE函数的第一种语法：
+    CASE WHEN expr1 THEN v1         //expr常是一个由比较运算符连接左右组成的式子，比较运算符左右可以是数据表列名、sql语句、一个值等。
+    WHEN expr2 THEN v2              //可以写若干个 WHEN...THEN...
+    ELSE v3
+    END
+    说明：从CASE到END一整个是CASE函数。若expr1成立，则返回v1；若expr2成立，则返回v2；各个WHEN都不成立，则返回v3
+
+    示例1：
+    SELECT id, `name`, CASE WHEN `name`='ck' THEN 'me' ELSE  'other' END AS notion, age FROM users WHERE id IN(8,9);
+    结果为：
+    +----+------+--------+------+
+    | id | name | notion | age  |
+    +----+------+--------+------+
+    |  8 | ck   | me     |   11 |
+    |  9 | plus | other  |   11 |
+    +----+------+--------+------+
+
+    示例2：
+    SELECT id,CASE WHEN (SELECT `name` FROM users WHERE id=8)='ck' THEN 'me' ELSE  'other' END AS notion, age
+    FROM users WHERE id IN(8,9);
+    结果为：
+    +----+--------+------+
+    | id | notion | age  |
+    +----+--------+------+
+    |  8 | me     |   11 |
+    |  9 | me     |   11 |
+    +----+--------+------+
+
+
+2、CASE函数的第二种语法：
+    CASE expr WHEN e1 THEN v1      //expr常是数据表列名、一个值、查询sql查货的值；e1、v1一般是值，也可以是查询sql查获的值。
+    WHEN e2 THEN v2
+    ELSE v3
+    END
+    说明：从CASE到END一整个是CASE函数。若expr的值为e1，则返回v1；若expr的值为e2，则返回v2；各个WHEN都不成立，则返回v3.
+
+
+    示例1：
+    前情数据                operator表
+    +----+-------+------+-------+
+    | id | money | rate | note  |
+    +----+-------+------+-------+
+    |  1 |   100 |  0.5 | hi    |
+    |  2 |   200 |    1 | hello |
+    |  3 |   300 |  1.5 | hey   |
+    +----+-------+------+-------+
+
+    在Navicat终端执行如下sql语句：
+    UPDATE operator SET
+	money=CASE id
+	WHEN 2 THEN 20
+	WHEN 3 THEN 30
+	END,
+	note=CASE id
+	WHEN 2 THEN 'hello-new'
+	WHEN 3 THEN 'hey-new'
+    END WHERE id IN(2,3);
+
+    执行该UPDATE这条sql语句后，operator表中的数据会更新为如下这样：
+    +----+-------+------+-----------+
+    | id | money | rate | note      |
+    +----+-------+------+-----------+
+    |  1 |   100 |  0.5 | hi        |
+    |  2 |    20 |    1 | hello-new |
+    |  3 |    30 |  1.5 | hey-new   |
+    +----+-------+------+-----------+
+
+
+
+    示例2：
+    SELECT id,`name`, CASE (select `name` from users where id=8) WHEN 'ck' THEN 'me' ELSE 'other' END AS notion
+    FROM users WHERE id IN(8,9);
+    结果为：
+    +----+------+--------+
+    | id | name | notion |
+    +----+------+--------+
+    |  8 | ck   | me     |
+    |  9 | plus | me     |
+    +----+------+--------+
+
+    示例3：
+    SELECT id,`name`, CASE 'ck' WHEN (select `name` from users where id=8) THEN 'me' ELSE 'other' END AS notion
+    FROM users WHERE id IN(8,9);
+    结果为：
+    +----+------+--------+
+    | id | name | notion |
+    +----+------+--------+
+    |  8 | ck   | me     |
+    |  9 | plus | me     |
+    +----+------+--------+
+
+
+（完）

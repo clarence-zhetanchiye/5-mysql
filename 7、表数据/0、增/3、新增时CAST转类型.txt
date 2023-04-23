@@ -1,0 +1,4 @@
+INSERT INTO tab1 VALUES(0,'tiger999', CAST('999' AS UNSIGNED INTEGER)) //tab1表中第三列是数字，这里就可将'999'变为999
+
+
+（完）
